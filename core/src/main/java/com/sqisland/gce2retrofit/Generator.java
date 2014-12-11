@@ -238,10 +238,11 @@ public class Generator {
       params.add(param2String(param));
     }
 
-    String returnValue = "void";
-    if (method.response != null) {
-      if (synchronous) {
-        returnValue = method.response.$ref;
+    String returnValue = (synchronous && method.response != null) ? method.response.$ref : "void";
+
+    if (!synchronous) {
+      if (method.response == null) {
+        params.add("Callback<Void> cb");
       } else {
         params.add("Callback<" + method.response.$ref + "> cb");
       }
