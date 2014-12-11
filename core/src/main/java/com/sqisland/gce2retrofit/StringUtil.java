@@ -27,8 +27,16 @@ public abstract class StringUtil {
 
   public static String getPackageName(String baseUrl)
       throws URISyntaxException {
+    if (baseUrl == null) {
+      return null;
+    }
+
     URI uri = new URI(baseUrl);
     String domain = uri.getHost();
+    if (domain == null) {
+      return null;
+    }
+
     String[] parts = domain.split("\\.");
 
     StringBuffer buf = new StringBuffer();
@@ -50,6 +58,9 @@ public abstract class StringUtil {
   }
 
   public static String getPath(String packageName, String fileName) {
+    if (packageName == null || fileName == null) {
+      return null;
+    }
     return packageName.replace(".", "/") + File.separator + fileName;
   }
 }
