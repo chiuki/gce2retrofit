@@ -5,3 +5,7 @@ mainClassName = 'com.sqisland.gce2retrofit.hello.HelloWorld'
 dependencies {
   compile 'com.squareup.retrofit:retrofit:1.8.0'
 }
+
+clean{
+  delete 'src/main/java/com/appspot'
+}
