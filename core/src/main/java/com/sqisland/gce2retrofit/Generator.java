@@ -21,7 +21,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -114,7 +113,7 @@ public class Generator {
 
     Discovery discovery = gson.fromJson(jsonReader, Discovery.class);
 
-    String packageName = getPackageName(discovery.baseUrl);
+    String packageName = StringUtil.getPackageName(discovery.baseUrl);
     String modelPackageName = packageName + ".model";
 
     for (Entry<String, JsonElement> entry : discovery.schemas.entrySet()) {
@@ -148,7 +147,7 @@ public class Generator {
       throws IOException {
     String id = schema.get("id").getAsString();
 
-    String path = getPath(modelPackageName, id + ".java");
+    String path = StringUtil.getPath(modelPackageName, id + ".java");
     Writer writer = writerFactory.getWriter(path);
     JavaWriter javaWriter = new JavaWriter(writer);
 
@@ -183,7 +182,7 @@ public class Generator {
     String capitalizedName = WordUtils.capitalizeFully(resourceName, '_');
     String className = capitalizedName.replaceAll("_", "");
 
-    String path = getPath(packageName, className + ".java");
+    String path = StringUtil.getPath(packageName, className + ".java");
     Writer fileWriter = writerFactory.getWriter(path);
     JavaWriter javaWriter = new JavaWriter(fileWriter);
 
@@ -316,59 +315,11 @@ public class Generator {
 
     String type = paramType.toJavaType();
     if (!paramType.required) {
-      type = primitiveToObject(type);
+      type = StringUtil.primitiveToObject(type);
     }
     buf.append(type + " " + paramName);
 
     return buf.toString();
-  }
-
-  private static String primitiveToObject(String type) {
-    if ("boolean".equals(type)) {
-      return "Boolean";
-    }
-
-    if ("int".equals(type)) {
-      return "Integer";
-    }
-
-    if ("float".equals(type)) {
-      return "Float";
-    }
-
-    if ("double".equals(type)) {
-      return "Double";
-    }
-
-    return type;
-  }
-
-  private static String getPackageName(String baseUrl)
-      throws URISyntaxException {
-    URI uri = new URI(baseUrl);
-    String domain = uri.getHost();
-    String[] parts = domain.split("\\.");
-
-    StringBuffer buf = new StringBuffer();
-    for (int i = parts.length - 1; i >= 0; --i) {
-      // Package name cannot have dashes. Replace with underscores.
-      String part = parts[i].replace('-', '_');
-
-      // Package name cannot start with a digit. Prepend with an underscore.
-      if (part.charAt(0) >= '0' && part.charAt(0) <= '9') {
-        buf.append('_');
-      }
-
-      buf.append(part);
-      if (i != 0) {
-        buf.append('.');
-      }
-    }
-    return buf.toString();
-  }
-
-  private static String getPath(String packageName, String fileName) {
-    return packageName.replace(".", "/") + File.separator + fileName;
   }
 
   private static class FileWriterFactory implements WriterFactory {
