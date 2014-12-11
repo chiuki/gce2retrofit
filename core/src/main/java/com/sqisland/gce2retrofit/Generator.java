@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -80,7 +81,8 @@ public class Generator {
       methodTypes = EnumSet.allOf(MethodType.class);
     }
 
-    generate(discoveryFile, outputDir, classMap, methodTypes);
+    generate(new FileReader(discoveryFile), new FileWriterFactory(outputDir),
+        classMap, methodTypes);
   }
 
   private static Options getOptions() {
@@ -105,28 +107,23 @@ public class Generator {
   }
 
   public static void generate(
-      String discoveryFile, String outputDir,
+      Reader discoveryReader, WriterFactory writerFactory,
       Map<String, String> classMap, EnumSet<MethodType> methodTypes)
       throws IOException, URISyntaxException {
-    JsonReader jsonReader = new JsonReader(new FileReader(discoveryFile));
+    JsonReader jsonReader = new JsonReader(discoveryReader);
 
     Discovery discovery = gson.fromJson(jsonReader, Discovery.class);
 
     String packageName = getPackageName(discovery.baseUrl);
-    String subdir = packageName.replace(".", "/");
-    File dir = new File(outputDir, subdir);
-
-    String modelPackage = packageName + ".model";
-    File modelDir = new File(dir, "model");
-    modelDir.mkdirs();
+    String modelPackageName = packageName + ".model";
 
     for (Entry<String, JsonElement> entry : discovery.schemas.entrySet()) {
       generateModel(
-          modelDir, modelPackage, entry.getValue().getAsJsonObject(), classMap);
+          writerFactory, modelPackageName, entry.getValue().getAsJsonObject(), classMap);
     }
 
     for (Entry<String, JsonElement> entry : discovery.resources.entrySet()) {
-      generateInterface(dir, packageName, entry, methodTypes);
+      generateInterface(writerFactory, packageName, entry, methodTypes);
     }
   }
 
@@ -146,19 +143,20 @@ public class Generator {
   }
 
   private static void generateModel(
-      File dir, String modelPackage, JsonObject schema, Map<String, String> classMap)
+      WriterFactory writerFactory, String modelPackageName,
+      JsonObject schema, Map<String, String> classMap)
       throws IOException {
     String id = schema.get("id").getAsString();
 
-    File java = new File(dir, id + ".java");
-    FileWriter fileWriter = new FileWriter(java);
-    JavaWriter javaWriter = new JavaWriter(fileWriter);
+    String path = getPath(modelPackageName, id + ".java");
+    Writer writer = writerFactory.getWriter(path);
+    JavaWriter javaWriter = new JavaWriter(writer);
 
-    javaWriter.emitPackage(modelPackage)
+    javaWriter.emitPackage(modelPackageName)
         .emitImports("java.util.List")
         .emitEmptyLine();
 
-    javaWriter.beginType(modelPackage + "." + id, "class", EnumSet.of(PUBLIC));
+    javaWriter.beginType(modelPackageName + "." + id, "class", EnumSet.of(PUBLIC));
 
     JsonObject properties = schema.get("properties").getAsJsonObject();
     for (Entry<String, JsonElement> entry : properties.entrySet()) {
@@ -174,19 +172,19 @@ public class Generator {
 
     javaWriter.endType();
 
-    fileWriter.close();
+    writer.close();
   }
 
   private static void generateInterface(
-      File dir, String packageName, Entry<String, JsonElement> resource,
+      WriterFactory writerFactory, String packageName, Entry<String, JsonElement> resource,
       EnumSet<MethodType> methodTypes)
       throws IOException {
     String resourceName = resource.getKey();
     String capitalizedName = WordUtils.capitalizeFully(resourceName, '_');
     String className = capitalizedName.replaceAll("_", "");
 
-    File java = new File(dir, className + ".java");
-    FileWriter fileWriter = new FileWriter(java);
+    String path = getPath(packageName, className + ".java");
+    Writer fileWriter = writerFactory.getWriter(path);
     JavaWriter javaWriter = new JavaWriter(fileWriter);
 
     javaWriter.emitPackage(packageName)
@@ -367,5 +365,27 @@ public class Generator {
       }
     }
     return buf.toString();
+  }
+
+  private static String getPath(String packageName, String fileName) {
+    return packageName.replace(".", "/") + File.separator + fileName;
+  }
+
+  private static class FileWriterFactory implements WriterFactory {
+    private final String parentDir;
+
+    public FileWriterFactory(String parentDir) {
+      this.parentDir = parentDir;
+    }
+
+    @Override
+    public Writer getWriter(String path) throws IOException {
+      File fullPath = new File(parentDir,  path);
+      File dir = new File(fullPath.getParent());
+      if (!dir.exists()) {
+        dir.mkdirs();
+      }
+      return new FileWriter(fullPath);
+    }
   }
 }
