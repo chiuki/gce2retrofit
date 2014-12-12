@@ -1,0 +1,11 @@
+package com.appspot.joda_time.model;
+
+import java.util.List;
+
+public class Party {
+  public String name;
+  public org.joda.time.DateTime start_time;
+  public org.joda.time.DateTime end_time;
+  public int capacity;
+  public boolean outdoor;
+}

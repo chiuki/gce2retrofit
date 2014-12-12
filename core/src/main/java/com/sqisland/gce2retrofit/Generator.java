@@ -62,7 +62,7 @@ public class Generator {
     String outputDir = arguments[1];
 
     Map<String, String> classMap = cmd.hasOption(OPTION_CLASS_MAP)?
-        readClassMap(cmd.getOptionValue(OPTION_CLASS_MAP)) : null;
+        readClassMap(new FileReader(cmd.getOptionValue(OPTION_CLASS_MAP))) : null;
 
     EnumSet<MethodType> methodTypes = EnumSet.noneOf(MethodType.class);
     if (cmd.hasOption(OPTION_METHODS)) {
@@ -126,12 +126,12 @@ public class Generator {
     }
   }
 
-  private static Map<String, String> readClassMap(String path) throws IOException {
+  public static Map<String, String> readClassMap(Reader reader) throws IOException {
     Map<String, String> classMap = new HashMap<String, String>();
 
-    BufferedReader reader = new BufferedReader(new FileReader(path));
     String line;
-    while ((line = reader.readLine()) != null) {
+    BufferedReader bufferedReader = new BufferedReader(reader);
+    while ((line = bufferedReader.readLine()) != null) {
       String[] fields = line.split("\t");
       if (fields.length == 2) {
         classMap.put(fields[0], fields[1]);

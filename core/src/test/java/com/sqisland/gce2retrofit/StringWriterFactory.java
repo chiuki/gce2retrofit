@@ -17,4 +17,8 @@ public class StringWriterFactory implements WriterFactory {
   public String getString(String path) {
     return writers.containsKey(path) ? writers.get(path).toString() : null;
   }
+
+  public int getCount() {
+    return writers.size();
+  }
 }

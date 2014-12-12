@@ -1,0 +1,28 @@
+{
+  "baseUrl": "https://joda-time.appspot.com/_ah/api/party/v1/",
+  "schemas": {
+    "Party": {
+      "id": "Party",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string"
+        },
+        "end_time": {
+          "type": "string"
+        },
+        "capacity": {
+         "type": "integer",
+         "format": "int32"
+        },
+        "outdoor": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "resources": {}
+}

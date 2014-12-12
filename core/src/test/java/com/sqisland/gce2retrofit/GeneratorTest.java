@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,25 @@ public final class GeneratorTest {
     doTestHelloGreeting(EnumSet.allOf(Generator.MethodType.class), ".both");
   }
 
+  @Test
+  public void testClassMapJodaTime() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/joda-time/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Map<String, String> classMap = Generator.readClassMap(new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/joda-time/classmap.tsv")));
+    assertThat(classMap).containsEntry("start_time", "org.joda.time.DateTime");
+    assertThat(classMap).containsEntry("end_time", "org.joda.time.DateTime");
+    assertThat(classMap).hasSize(2);
+
+    Generator.generate(reader, factory, classMap, EnumSet.noneOf(Generator.MethodType.class));
+
+    assertThat(factory.getString("com/appspot/joda_time/model/Party.java"))
+        .isEqualTo(getExpectedString("/joda-time/Party.java.model"));
+    assertThat(factory.getCount()).isEqualTo(1);
+  }
+
   private void doTestHelloGreeting(EnumSet<Generator.MethodType> methodTypes, String suffix)
       throws IOException, URISyntaxException {
     InputStreamReader reader = new InputStreamReader(
@@ -44,6 +64,7 @@ public final class GeneratorTest {
         .isEqualTo(getExpectedString("/helloworld/HelloGreetingCollection.java.model"));
     assertThat(factory.getString("com/appspot/example/Greetings.java"))
         .isEqualTo(getExpectedString("/helloworld/Greetings.java" + suffix));
+    assertThat(factory.getCount()).isEqualTo(3);
   }
 
   private static String getExpectedString(String path) throws URISyntaxException, IOException {
