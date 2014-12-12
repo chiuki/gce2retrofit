@@ -1,0 +1,7 @@
+package com.appspot.example.model;
+
+import java.util.List;
+
+public class HelloGreetingCollection {
+  public List<HelloGreeting> items;
+}

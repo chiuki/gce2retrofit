@@ -1,0 +1,102 @@
+{
+ "baseUrl": "https://example.appspot.com/_ah/api/helloworld/v1/",
+ "schemas": {
+  "HelloGreeting": {
+   "id": "HelloGreeting",
+   "type": "object",
+   "properties": {
+    "message": {
+     "type": "string"
+    }
+   }
+  },
+  "HelloGreetingCollection": {
+   "id": "HelloGreetingCollection",
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "$ref": "HelloGreeting"
+     }
+    }
+   }
+  }
+ },
+ "resources": {
+  "greetings": {
+   "methods": {
+    "authed": {
+     "id": "helloworld.greetings.authed",
+     "path": "hellogreeting/authed",
+     "httpMethod": "POST",
+     "response": {
+      "$ref": "HelloGreeting"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    },
+    "getGreeting": {
+     "id": "helloworld.greetings.getGreeting",
+     "path": "hellogreeting/{id}",
+     "httpMethod": "GET",
+     "parameters": {
+      "id": {
+       "type": "integer",
+       "required": true,
+       "format": "int32",
+       "location": "path"
+      }
+     },
+     "parameterOrder": [
+      "id"
+     ],
+     "response": {
+      "$ref": "HelloGreeting"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    },
+    "listGreeting": {
+     "id": "helloworld.greetings.listGreeting",
+     "path": "hellogreeting",
+     "httpMethod": "GET",
+     "response": {
+      "$ref": "HelloGreetingCollection"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    },
+    "multiply": {
+     "id": "helloworld.greetings.multiply",
+     "path": "hellogreeting/{times}",
+     "httpMethod": "POST",
+     "parameters": {
+      "times": {
+       "type": "integer",
+       "required": true,
+       "format": "int32",
+       "location": "path"
+      }
+     },
+     "parameterOrder": [
+      "times"
+     ],
+     "request": {
+      "$ref": "HelloGreeting",
+      "parameterName": "resource"
+     },
+     "response": {
+      "$ref": "HelloGreeting"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    }
+   }
+  }
+ }
+}
