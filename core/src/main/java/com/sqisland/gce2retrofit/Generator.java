@@ -152,6 +152,8 @@ public class Generator {
     JavaWriter javaWriter = new JavaWriter(writer);
 
     javaWriter.emitPackage(modelPackageName)
+        .emitImports("com.google.gson.annotations.SerializedName")
+        .emitEmptyLine()
         .emitImports("java.util.List")
         .emitEmptyLine();
 
@@ -160,13 +162,18 @@ public class Generator {
     JsonObject properties = schema.get("properties").getAsJsonObject();
     for (Entry<String, JsonElement> entry : properties.entrySet()) {
       String key = entry.getKey();
+      String variableName = key;
+      if (StringUtil.isReservedWord(key)) {
+        javaWriter.emitAnnotation("SerializedName(\"" + key + "\")");
+        variableName += "_";
+      }
       PropertyType propertyType = gson.fromJson(
           entry.getValue(), PropertyType.class);
       String javaType = propertyType.toJavaType();
       if (classMap != null && classMap.containsKey(key)) {
         javaType = classMap.get(key);
       }
-      javaWriter.emitField(javaType, key, EnumSet.of(PUBLIC));
+      javaWriter.emitField(javaType, variableName, EnumSet.of(PUBLIC));
     }
 
     javaWriter.endType();

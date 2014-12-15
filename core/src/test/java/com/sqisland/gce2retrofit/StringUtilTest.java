@@ -89,4 +89,14 @@ public final class StringUtilTest {
   public void getPackageNameBadCharacter() throws Exception {
     StringUtil.getPackageName("|");
   }
+
+  @Test
+  public void staticReservedWord() {
+    assertThat(StringUtil.isReservedWord("static")).isTrue();
+  }
+
+  @Test
+  public void inNotReservedWord() {
+    assertThat(StringUtil.isReservedWord("in")).isFalse();
+  }
 }

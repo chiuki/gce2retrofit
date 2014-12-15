@@ -1,0 +1,19 @@
+{
+  "baseUrl": "https://reserved-words.appspot.com/_ah/api/naughty/v1/",
+  "schemas": {
+    "Naughty": {
+      "id": "Naughty",
+      "type": "object",
+      "properties": {
+        "int": {
+          "type": "number",
+          "format": "int32"
+        },
+        "final": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "resources": {}
+}

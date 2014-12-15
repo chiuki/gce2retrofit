@@ -51,6 +51,19 @@ public final class GeneratorTest {
     assertThat(factory.getCount()).isEqualTo(1);
   }
 
+  @Test
+  public void testReservedWords() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/reserved-words/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Generator.generate(reader, factory, null, EnumSet.noneOf(Generator.MethodType.class));
+
+    assertThat(factory.getString("com/appspot/reserved_words/model/Naughty.java"))
+        .isEqualTo(getExpectedString("/reserved-words/Naughty.java.model"));
+    assertThat(factory.getCount()).isEqualTo(1);
+  }
+
   private void doTestHelloGreeting(EnumSet<Generator.MethodType> methodTypes, String suffix)
       throws IOException, URISyntaxException {
     InputStreamReader reader = new InputStreamReader(

@@ -1,0 +1,12 @@
+package com.appspot.reserved_words.model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+public class Naughty {
+  @SerializedName("int")
+  public int int_;
+  @SerializedName("final")
+  public boolean final_;
+}

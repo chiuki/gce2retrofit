@@ -63,4 +63,28 @@ public abstract class StringUtil {
     }
     return packageName.replace(".", "/") + File.separator + fileName;
   }
+
+  private static final String[] RESERVED_WORDS = {
+      "abstract", "continue", "for", "new", "switch",
+      "assert", "default", "goto", "package", "synchronized",
+      "boolean", "do", "if", "private", "this",
+      "break", "double", "implements", "protected", "throw",
+      "byte", "else", "import", "public", "throws",
+      "case", "enum", "instanceof", "return", "transient",
+      "catch", "extends", "int", "short", "try",
+      "char", "final", "interface", "static", "void",
+      "class", "finally", "long", "strictfp", "volatile",
+      "const", "float", "native", "super", "while"
+  };
+  public static boolean isReservedWord(String name) {
+    if (name == null || name.length() == 0) {
+      return false;
+    }
+    for (String word : RESERVED_WORDS) {
+      if (word.equals(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
