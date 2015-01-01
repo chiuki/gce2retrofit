@@ -2,10 +2,6 @@ apply plugin: 'application'
 
 mainClassName = 'com.sqisland.gce2retrofit.hello.HelloWorld'
 
-repositories {
-  jcenter()
-}
-
 dependencies {
   compile 'com.squareup.retrofit:retrofit:1.8.0'
 }

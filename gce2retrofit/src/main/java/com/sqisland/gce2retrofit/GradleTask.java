@@ -15,7 +15,7 @@ import org.gradle.api.tasks.TaskAction;
 
 public class GradleTask extends DefaultTask {
   @TaskAction
-  public void hello() throws IOException, URISyntaxException {
+  public void gradleTask() throws IOException, URISyntaxException {
     Project project = getProject();
 
     String outputDir = project.getBuildDir() + "/generated/source/gce2retrofit";
