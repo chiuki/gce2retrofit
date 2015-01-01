@@ -2,10 +2,30 @@ apply plugin: 'application'
 
 mainClassName = 'com.sqisland.gce2retrofit.hello.HelloWorld'
 
+repositories {
+  jcenter()
+}
+
 dependencies {
   compile 'com.squareup.retrofit:retrofit:1.8.0'
 }
 
-clean{
+clean {
   delete 'src/main/java/com/appspot'
 }
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url uri('../core/build/repo')
+        }
+    }
+    dependencies {
+        classpath 'com.sqisland.gce2retrofit:core:0.1.0-SNAPSHOT'
+    }
+}
+
+apply plugin: 'com.sqisland.gce2retrofit'
+
+compileJava.dependsOn gce2retrofit

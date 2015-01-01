@@ -64,21 +64,7 @@ public class Generator {
     Map<String, String> classMap = cmd.hasOption(OPTION_CLASS_MAP)?
         readClassMap(new FileReader(cmd.getOptionValue(OPTION_CLASS_MAP))) : null;
 
-    EnumSet<MethodType> methodTypes = EnumSet.noneOf(MethodType.class);
-    if (cmd.hasOption(OPTION_METHODS)) {
-      String[] parts = cmd.getOptionValue(OPTION_METHODS).split(",");
-      for (String part : parts) {
-        if ("sync".equals(part) || "both".equals(part)) {
-          methodTypes.add(MethodType.SYNC);
-        }
-        if ("async".equals(part) || "both".equals(part)) {
-          methodTypes.add(MethodType.ASYNC);
-        }
-      }
-    }
-    if (methodTypes.isEmpty()) {
-      methodTypes = EnumSet.allOf(MethodType.class);
-    }
+    EnumSet<MethodType> methodTypes = getMethods(cmd.getOptionValue(OPTION_METHODS));
 
     generate(new FileReader(discoveryFile), new FileWriterFactory(outputDir),
         classMap, methodTypes);
@@ -139,6 +125,25 @@ public class Generator {
     }
 
     return classMap;
+  }
+
+  public static EnumSet<MethodType> getMethods(String input) {
+    EnumSet<MethodType> methodTypes = EnumSet.noneOf(MethodType.class);
+    if (input != null) {
+      String[] parts = input.split(",");
+      for (String part : parts) {
+        if ("sync".equals(part) || "both".equals(part)) {
+          methodTypes.add(MethodType.SYNC);
+        }
+        if ("async".equals(part) || "both".equals(part)) {
+          methodTypes.add(MethodType.ASYNC);
+        }
+      }
+    }
+    if (methodTypes.isEmpty()) {
+      methodTypes = EnumSet.allOf(MethodType.class);
+    }
+    return methodTypes;
   }
 
   private static void generateModel(
@@ -328,23 +333,5 @@ public class Generator {
     buf.append(type + " " + paramName);
 
     return buf.toString();
-  }
-
-  private static class FileWriterFactory implements WriterFactory {
-    private final String parentDir;
-
-    public FileWriterFactory(String parentDir) {
-      this.parentDir = parentDir;
-    }
-
-    @Override
-    public Writer getWriter(String path) throws IOException {
-      File fullPath = new File(parentDir,  path);
-      File dir = new File(fullPath.getParent());
-      if (!dir.exists()) {
-        dir.mkdirs();
-      }
-      return new FileWriter(fullPath);
-    }
   }
 }
