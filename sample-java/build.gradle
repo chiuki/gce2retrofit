@@ -15,15 +15,15 @@ clean {
 }
 
 buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url uri('../core/build/repo')
-        }
+  repositories {
+    jcenter()
+    maven {
+      url uri('../gce2retrofit/build/repo')
     }
-    dependencies {
-        classpath 'com.sqisland.gce2retrofit:core:0.1.0-SNAPSHOT'
-    }
+  }
+  dependencies {
+    classpath 'com.sqisland:gce2retrofit:0.1.0-SNAPSHOT'
+  }
 }
 
 apply plugin: 'com.sqisland.gce2retrofit'

@@ -4,7 +4,7 @@ Generates [retrofit](http://square.github.io/retrofit/) interfaces and related m
 [Google Cloud Endpoint (GCE)](https://cloud.google.com/endpoints/) discovery file.
 
 ## Publish the gradle plugin to a local repo
-    cd core
+    cd gce2retrofit
     ../gradlew publish
     cd ..
 
@@ -15,13 +15,13 @@ Generates [retrofit](http://square.github.io/retrofit/) interfaces and related m
 
 Alternatively, you can compile a jar file and generate the retrofit classes manually.
 
-## Compile the core jar file
-    cd core
+## Compile the gce2retrofit jar file
+    cd gce2retrofit
     ./gradlew jar
     cd ..
     
 ## Generate retrofit classes for the sample project
-    java -jar core/build/libs/gce2retrofit.jar \
+    java -jar gce2retrofit/build/libs/gce2retrofit.jar \
       sample-java/gce2retrofit/helloworld/discovery.json \
       sample-java/src/main/java \
       --methods sync \

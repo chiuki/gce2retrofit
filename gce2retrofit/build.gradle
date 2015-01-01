@@ -18,17 +18,17 @@ dependencies {
 }
 
 jar {
-    doFirst {
-        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    }
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
-    manifest.attributes("Main-Class": "com.sqisland.gce2retrofit.Generator")
-    archiveName "gce2retrofit.jar"
+  doFirst {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  }
+  exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+  manifest.attributes("Main-Class": "com.sqisland.gce2retrofit.Generator")
+  archiveName "gce2retrofit.jar"
 }
 
 apply plugin: 'maven-publish'
 
-group = 'com.sqisland.gce2retrofit'
+group = 'com.sqisland'
 version = '0.1.0-SNAPSHOT'
 
 publishing {
