@@ -10,10 +10,6 @@ dependencies {
   compile 'com.squareup.retrofit:retrofit:1.8.0'
 }
 
-clean {
-  delete 'src/main/java/com/appspot'
-}
-
 buildscript {
   repositories {
     jcenter()
@@ -27,5 +23,5 @@ buildscript {
 }
 
 apply plugin: 'com.sqisland.gce2retrofit'
-
 compileJava.dependsOn gce2retrofit
+compileJava.source += fileTree("$buildDir/generated/source/gce2retrofit")

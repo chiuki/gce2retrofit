@@ -18,7 +18,7 @@ public class GradleTask extends DefaultTask {
   public void hello() throws IOException, URISyntaxException {
     Project project = getProject();
 
-    String outputDir = project.getProjectDir() + "/src/main/java";
+    String outputDir = project.getBuildDir() + "/generated/source/gce2retrofit";
     WriterFactory factory = new FileWriterFactory(outputDir);
 
     File configDir = new File(project.getProjectDir(), "/gce2retrofit");
