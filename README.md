@@ -1,6 +1,6 @@
 # gce2retrofit
 
-Generates [retrofit](http://square.github.io/retrofit/) interfaces and related models from a
+Generates [Retrofit](http://square.github.io/retrofit/) interfaces and related models from a
 [Google Cloud Endpoint (GCE)](https://cloud.google.com/endpoints/) discovery file.
 
 ## Gradle plugin
@@ -15,13 +15,6 @@ Generates [retrofit](http://square.github.io/retrofit/) interfaces and related m
 
 ### Install the sample Android app
     ./gradlew sample-android:installDebug
-
-Right now Android Studio does not recognize the generated source files. To work around that, add
-this to the `.iml` file of your Android project:
-
-    <sourceFolder url="file://$MODULE_DIR$/build/generated/source/gce2retrofit" isTestSource="false" generated="true" />
-
-You need to do that every time you sync your project with gradle files.
 
 ## Command line
 
