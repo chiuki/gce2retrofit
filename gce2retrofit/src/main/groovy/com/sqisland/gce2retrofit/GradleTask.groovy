@@ -11,20 +11,21 @@ import java.util.Map;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 
 public class GradleTask extends DefaultTask {
+  @InputDirectory
+  File configDir = new File(project.getProjectDir(), "gce2retrofit")
   @OutputDirectory
   File outputDir
 
   @TaskAction
-  public void gradleTask() throws IOException, URISyntaxException {
-    Project project = getProject();
-
+  public void execute(IncrementalTaskInputs inputs) {
     WriterFactory factory = new FileWriterFactory(outputDir);
 
-    File configDir = new File(project.getProjectDir(), "gce2retrofit");
     for (File dir : configDir.listFiles()) {
       File discoveryFile = new File(dir, "discovery.json");
       Reader reader = new FileReader(discoveryFile);

@@ -19,7 +19,3 @@ buildscript {
 }
 
 apply plugin: 'com.sqisland.gce2retrofit'
-def Task t = project.tasks.create("gce2retrofit-java", com.sqisland.gce2retrofit.GradleTask)
-t.outputDir = file("$buildDir/generated/source/gce2retrofit")
-compileJava.dependsOn t
-compileJava.source += fileTree(t.outputDir)

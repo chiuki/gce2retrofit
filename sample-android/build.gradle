@@ -38,9 +38,3 @@ buildscript {
 }
 
 apply plugin: 'com.sqisland.gce2retrofit'
-project.android.applicationVariants.all { variant ->
-  def Task t = project.tasks.create("genCode${variant.name}", com.sqisland.gce2retrofit.GradleTask)
-  t.outputDir = file("$buildDir/generated/source/gce2retrofit/${variant.name}")
-  variant.javaCompile.dependsOn t
-  variant.registerJavaGeneratingTask t, t.outputDir
-}
