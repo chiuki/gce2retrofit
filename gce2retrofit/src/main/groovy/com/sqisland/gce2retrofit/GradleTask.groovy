@@ -18,7 +18,7 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 
 public class GradleTask extends DefaultTask {
   @InputDirectory
-  File configDir = new File(project.getProjectDir(), "gce2retrofit")
+  File inputDir = new File(project.getProjectDir(), "src/main/gce2retrofit")
   @OutputDirectory
   File outputDir
 
@@ -26,7 +26,7 @@ public class GradleTask extends DefaultTask {
   public void execute(IncrementalTaskInputs inputs) {
     WriterFactory factory = new FileWriterFactory(outputDir);
 
-    for (File dir : configDir.listFiles()) {
+    for (File dir : inputDir.listFiles()) {
       File discoveryFile = new File(dir, "discovery.json");
       Reader reader = new FileReader(discoveryFile);
 
