@@ -66,7 +66,7 @@ public class Generator {
 
     EnumSet<MethodType> methodTypes = getMethods(cmd.getOptionValue(OPTION_METHODS));
 
-    generate(new FileReader(discoveryFile), new FileWriterFactory(outputDir),
+    generate(new FileReader(discoveryFile), new FileWriterFactory(new File(outputDir)),
         classMap, methodTypes);
   }
 

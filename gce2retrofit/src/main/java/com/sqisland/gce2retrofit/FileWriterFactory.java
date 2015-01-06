@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class FileWriterFactory implements WriterFactory {
-  private final String parentDir;
+  private final File parentDir;
 
-  public FileWriterFactory(String parentDir) {
+  public FileWriterFactory(File parentDir) {
     this.parentDir = parentDir;
   }
 

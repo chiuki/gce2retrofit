@@ -18,10 +18,10 @@ public class GradleTask extends DefaultTask {
   public void gradleTask() throws IOException, URISyntaxException {
     Project project = getProject();
 
-    String outputDir = project.getBuildDir() + "/generated/source/gce2retrofit";
+    File outputDir = new File(project.getBuildDir(), "generated/source/gce2retrofit");
     WriterFactory factory = new FileWriterFactory(outputDir);
 
-    File configDir = new File(project.getProjectDir(), "/gce2retrofit");
+    File configDir = new File(project.getProjectDir(), "gce2retrofit");
     for (File dir : configDir.listFiles()) {
       File discoveryFile = new File(dir, "discovery.json");
       Reader reader = new FileReader(discoveryFile);
