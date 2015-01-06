@@ -11,14 +11,17 @@ import java.util.Map;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
 public class GradleTask extends DefaultTask {
+  @OutputDirectory
+  File outputDir
+
   @TaskAction
   public void gradleTask() throws IOException, URISyntaxException {
     Project project = getProject();
 
-    File outputDir = new File(project.getBuildDir(), "generated/source/gce2retrofit");
     WriterFactory factory = new FileWriterFactory(outputDir);
 
     File configDir = new File(project.getProjectDir(), "gce2retrofit");
