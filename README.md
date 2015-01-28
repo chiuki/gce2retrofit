@@ -1,29 +1,49 @@
 # gce2retrofit
 
-Generates [Retrofit](http://square.github.io/retrofit/) interfaces and related models from a
-[Google Cloud Endpoint (GCE)](https://cloud.google.com/endpoints/) discovery file.
+Generates [Retrofit](http://square.github.io/retrofit/) interfaces and related models from
+[Google Cloud Endpoint (GCE)](https://cloud.google.com/endpoints/) discovery files.
 
-## Gradle plugin
+## Usage
 
-### Publish the gradle plugin to a local repo
-    ./gradlew gce2retrofit:uploadArchives
+### Configuaration files
 
-### Run the sample Java project
-    ./gradlew sample-java:run
+Put the configuration files for each GCE server in a directory under `src/main/gce2retrofit`.
 
-### Install the sample Android app
-    ./gradlew sample-android:installDebug
+`discovery.json` (required)
 
-## Command line
+The discovery doc from GCE.
+e.g. https://2-dot-test-pont.appspot.com/_ah/api/discovery/v1/apis/helloworld/v1/rest
 
-Alternatively, you can compile a jar file and generate the retrofit classes manually.
+`methods.csv` (optional)
 
-### Compile the gce2retrofit jar file
-    ./gradlew gce2retrofit:jar
-    
-### Generate retrofit classes for the sample Java project
-    java -jar gce2retrofit/build/libs/gce2retrofit.jar \
-      sample-java/src/main/gce2retrofit/helloworld/discovery.json \
-      sample-java/src/main/java \
-      --methods sync \
-      --classmap sample-java/src/main/gce2retrofit/helloworld/classmap.tsv
+Valid values are `sync` and `async`. If omitted, both synchronous and asynchronous
+interfaces will be generated.
+
+`classmap.tsv` (optional)
+
+Map fields with the specified names to the specified types.
+
+See [`sample-java/src/main/gce2retrofit/helloworld`](sample-java/src/main/gce2retrofit/helloworld)
+for an example.
+
+### Gralde plugin
+
+Apply the plugin in your `build.gradle`:
+
+    buildscript {
+      repositories {
+        jcenter()
+        maven {
+          url 'http://oss.sonatype.org/content/repositories/snapshots/'
+        }
+      }
+      dependencies {
+        classpath 'com.sqisland:gce2retrofit:1.0.0-SNAPSHOT'
+      }
+    }
+
+    apply plugin: 'com.sqisland.gce2retrofit'
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md).
