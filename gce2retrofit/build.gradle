@@ -1,5 +1,20 @@
+final DEVELOPMENT = true
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.bmuschko:gradle-nexus-plugin:2.2'
+  }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'java'
+
+if (!DEVELOPMENT) {
+  apply plugin: 'com.bmuschko.nexus'
+}
 
 repositories {
   jcenter()
@@ -35,10 +50,51 @@ apply plugin: 'maven'
 group = 'com.sqisland'
 version = '1.0.0-SNAPSHOT'
 
+install {
+  repositories {
+    mavenInstaller {
+      pom.artifactId = 'gce2retrofit'
+    }
+  }
+}
 uploadArchives {
   repositories {
     mavenDeployer {
       repository(url: "file://$buildDir/repo")
+      pom.artifactId = 'gce2retrofit'
+    }
+  }
+}
+
+if (!DEVELOPMENT) {
+  modifyPom {
+    project {
+      name 'gce2retrofit'
+      description "Gradle plugin to generate Retrofit classes from Google Cloud Endpoint (GCE) discovery file"
+      url 'https://github.com/chiuki/gce2retrofit'
+      inceptionYear '2015'
+
+      scm {
+        url 'https://github.com/chiuki/gce2retrofit'
+        connection 'scm:git:git://github.com/chiuki/gce2retrofit.git'
+        developerConnection 'scm:git:ssh://git@github.com/chiuki/gce2retrofit.git'
+      }
+
+      licenses {
+        license {
+          name 'The Apache Software License, Version 2.0'
+          url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          distribution 'repo'
+        }
+      }
+
+      developers {
+        developer {
+          id 'chiuki'
+          name 'Chiu-Ki Chan'
+          email 'chiuki@sqisland.com'
+        }
+      }
     }
   }
 }

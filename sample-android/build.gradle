@@ -26,10 +26,18 @@ dependencies {
 }
 
 buildscript {
+  def localRepo = new File("$projectDir/../gce2retrofit/build/repo")
   repositories {
     jcenter()
-    maven {
-      url uri('../gce2retrofit/build/repo')
+
+    if (localRepo.exists()) {
+      maven {
+        url localRepo
+      }
+    } else {
+      maven {
+        url 'http://oss.sonatype.org/content/repositories/snapshots/'
+      }
     }
   }
   dependencies {
