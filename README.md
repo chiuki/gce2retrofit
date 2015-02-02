@@ -26,7 +26,7 @@ Map fields with the specified names to the specified types.
 See [`sample-java/src/main/gce2retrofit/helloworld`](sample-java/src/main/gce2retrofit/helloworld)
 for an example.
 
-### Gralde plugin
+### Gradle plugin
 
 Apply the plugin in your `build.gradle`:
 
