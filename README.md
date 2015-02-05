@@ -23,6 +23,8 @@ interfaces will be generated.
 
 Map fields with the specified names to the specified types.
 
+Code will be generated in `build/generated/source/gce2retrofit/`
+ 
 See [`sample-java/src/main/gce2retrofit/helloworld`](sample-java/src/main/gce2retrofit/helloworld)
 for an example.
 
