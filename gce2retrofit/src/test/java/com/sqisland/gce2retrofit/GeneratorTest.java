@@ -64,6 +64,20 @@ public final class GeneratorTest {
     assertThat(factory.getCount()).isEqualTo(1);
   }
 
+  @Test
+  public void testNestedResources() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/nested-resources/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+    Generator.generate(reader, factory, null, EnumSet.allOf(Generator.MethodType.class));
+    
+    assertThat(factory.getString("com/appspot/nested_resources/model/TestObject.java"))
+        .isEqualTo(getExpectedString("/nested-resources/TestObject.java.model"));
+    assertThat(factory.getString("com/appspot/nested_resources/NestedTest.java"))
+        .isEqualTo(getExpectedString("/nested-resources/NestedTest.java.both"));
+    assertThat(factory.getCount()).isEqualTo(2);
+  }
+
   private void doTestHelloGreeting(EnumSet<Generator.MethodType> methodTypes, String suffix)
       throws IOException, URISyntaxException {
     InputStreamReader reader = new InputStreamReader(

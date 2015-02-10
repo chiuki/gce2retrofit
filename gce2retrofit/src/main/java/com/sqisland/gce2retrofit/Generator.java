@@ -108,12 +108,8 @@ public class Generator {
     }
 
     if (discovery.resources != null) {
-      for (Entry<String, JsonElement> entry : discovery.resources.entrySet()) {
-        generateInterface(writerFactory, packageName,
-            entry.getKey(),
-            entry.getValue().getAsJsonObject().get("methods").getAsJsonObject(),
-            methodTypes);
-      }
+      generateInterfaceFromResources(
+          writerFactory, packageName, "", discovery.resources, methodTypes);
     }
 
     if (discovery.name != null && discovery.methods != null) {
@@ -213,6 +209,30 @@ public class Generator {
     JsonArray enums = schema.get("enum").getAsJsonArray();
     for (int i = 0; i < enums.size(); ++i) {
       javaWriter.emitEnumValue(enums.get(i).getAsString());
+    }
+  }
+
+  private static void generateInterfaceFromResources(
+      WriterFactory writerFactory, String packageName,
+      String resourceName, JsonObject resources, 
+      EnumSet<MethodType> methodTypes)
+      throws IOException {
+    for (Entry<String, JsonElement> entry : resources.entrySet()) {
+      JsonObject entryValue = entry.getValue().getAsJsonObject();
+      
+      if (entryValue.has("methods")) {
+        generateInterface(writerFactory, packageName,
+            resourceName + "_" + entry.getKey(),
+            entryValue.get("methods").getAsJsonObject(),
+            methodTypes);
+      }
+    
+      if (entryValue.has("resources")) {
+        generateInterfaceFromResources(writerFactory, packageName,
+            resourceName + "_" + entry.getKey(),
+            entryValue.get("resources").getAsJsonObject(),
+            methodTypes);
+      }
     }
   }
 
