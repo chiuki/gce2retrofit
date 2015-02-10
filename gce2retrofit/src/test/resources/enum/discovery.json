@@ -1,0 +1,56 @@
+{
+  "name": "media",
+  "baseUrl": "https://kyatest-kfkb.appspot.com/_ah/api/media/v1/",
+  "schemas": {
+    "CONTENT_TYPE": {
+      "id": "CONTENT_TYPE",
+      "type": "string",
+      "enum": [
+        "IMAGE",
+        "VIDEO"     
+      ],
+      "enumDescriptions": [
+        "",
+        ""
+      ]
+    },
+    "MediaGetDTO": {
+      "id": "MediaGetDTO",
+      "type": "object",
+      "properties": {
+        "mediaType": {
+          "$ref": "CONTENT_TYPE"
+        }
+      }
+    }
+  },
+  "methods": {
+    "get": {
+      "id": "media.get",
+      "path": "media/{mediaKey}",
+      "httpMethod": "GET",
+      "parameters": {
+        "mediaKey": {
+          "type": "string",
+          "required": true,
+          "location": "path"
+        },
+        "token": {
+          "type": "string",
+          "required": true,
+          "location": "query"
+        }
+      },
+      "parameterOrder": [
+        "mediaKey",
+        "token"
+       ],
+      "response": {
+        "$ref": "MediaGetDTO"
+      },
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email"
+      ]
+    }
+  }
+}

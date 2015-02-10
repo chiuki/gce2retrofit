@@ -1,0 +1,10 @@
+package com.appspot.kyatest_kfkb.model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+public enum CONTENT_TYPE {
+  IMAGE,
+  VIDEO,
+}

@@ -80,6 +80,23 @@ public final class GeneratorTest {
     assertThat(factory.getCount()).isEqualTo(3);
   }
 
+  @Test
+  public void testEnum() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/enum/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC));
+
+    assertThat(factory.getString("com/appspot/kyatest_kfkb/model/CONTENT_TYPE.java"))
+        .isEqualTo(getExpectedString("/enum/CONTENT_TYPE.java.model"));
+    assertThat(factory.getString("com/appspot/kyatest_kfkb/model/MediaGetDTO.java"))
+        .isEqualTo(getExpectedString("/enum/MediaGetDTO.java.model"));
+    assertThat(factory.getString("com/appspot/kyatest_kfkb/Media.java"))
+        .isEqualTo(getExpectedString("/enum/Media.java.sync"));
+    assertThat(factory.getCount()).isEqualTo(3);
+  }
+
   private static String getExpectedString(String path) throws URISyntaxException, IOException {
     URL url = GeneratorTest.class.getResource(path);
     Path resPath = Paths.get(url.toURI());

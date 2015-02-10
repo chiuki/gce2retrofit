@@ -1,0 +1,9 @@
+package com.appspot.kyatest_kfkb.model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+public class MediaGetDTO {
+  public CONTENT_TYPE mediaType;
+}

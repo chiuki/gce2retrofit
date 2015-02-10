@@ -1,6 +1,7 @@
 package com.sqisland.gce2retrofit;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -17,7 +18,6 @@ import org.apache.commons.lang3.text.WordUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -107,8 +107,18 @@ public class Generator {
           writerFactory, modelPackageName, entry.getValue().getAsJsonObject(), classMap);
     }
 
-    for (Entry<String, JsonElement> entry : discovery.resources.entrySet()) {
-      generateInterface(writerFactory, packageName, entry, methodTypes);
+    if (discovery.resources != null) {
+      for (Entry<String, JsonElement> entry : discovery.resources.entrySet()) {
+        generateInterface(writerFactory, packageName,
+            entry.getKey(),
+            entry.getValue().getAsJsonObject().get("methods").getAsJsonObject(),
+            methodTypes);
+      }
+    }
+
+    if (discovery.name != null && discovery.methods != null) {
+      generateInterface(
+          writerFactory, packageName, discovery.name, discovery.methods, methodTypes);
     }
   }
 
@@ -162,8 +172,23 @@ public class Generator {
         .emitImports("java.util.List")
         .emitEmptyLine();
 
-    javaWriter.beginType(modelPackageName + "." + id, "class", EnumSet.of(PUBLIC));
+    String type = schema.get("type").getAsString();
+    if (type.equals("object")) {
+      javaWriter.beginType(modelPackageName + "." + id, "class", EnumSet.of(PUBLIC));
+      generateObject(javaWriter, schema, classMap);
+      javaWriter.endType();
+    } else if (type.equals("string")) {
+      javaWriter.beginType(modelPackageName + "." + id, "enum", EnumSet.of(PUBLIC));
+      generateEnum(javaWriter, schema, classMap);
+      javaWriter.endType();
+    }
 
+    writer.close();
+  }
+
+  private static void generateObject(
+      JavaWriter javaWriter, JsonObject schema, Map<String, String> classMap)
+      throws IOException {
     JsonObject properties = schema.get("properties").getAsJsonObject();
     for (Entry<String, JsonElement> entry : properties.entrySet()) {
       String key = entry.getKey();
@@ -180,17 +205,22 @@ public class Generator {
       }
       javaWriter.emitField(javaType, variableName, EnumSet.of(PUBLIC));
     }
+  }
 
-    javaWriter.endType();
-
-    writer.close();
+  private static void generateEnum(
+      JavaWriter javaWriter, JsonObject schema, Map<String, String> classMap)
+      throws IOException {
+    JsonArray enums = schema.get("enum").getAsJsonArray();
+    for (int i = 0; i < enums.size(); ++i) {
+      javaWriter.emitEnumValue(enums.get(i).getAsString());
+    }
   }
 
   private static void generateInterface(
-      WriterFactory writerFactory, String packageName, Entry<String, JsonElement> resource,
+      WriterFactory writerFactory, String packageName,
+      String resourceName, JsonObject methods,
       EnumSet<MethodType> methodTypes)
       throws IOException {
-    String resourceName = resource.getKey();
     String capitalizedName = WordUtils.capitalizeFully(resourceName, '_');
     String className = capitalizedName.replaceAll("_", "");
 
@@ -215,8 +245,6 @@ public class Generator {
     javaWriter.beginType(
         packageName + "." + className, "interface", EnumSet.of(PUBLIC));
 
-    JsonObject methods = resource.getValue().getAsJsonObject()
-        .get("methods").getAsJsonObject();
     for (Entry<String, JsonElement> entry : methods.entrySet()) {
       String methodName = entry.getKey();
       Method method = gson.fromJson(entry.getValue(), Method.class);
