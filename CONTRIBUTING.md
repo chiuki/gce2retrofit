@@ -1,5 +1,14 @@
 # Contributing
 
+## Test-driven development
+
+The easiest way to add new functionality to the plugin is to write a new test case.
+
+  1. Add a new folder to `test/resources` with `discovery.json` and the expected output.
+  2. Add a test case to `gce2retrofit/src/test/java/com/sqisland/gce2retrofit/GeneratorTest.java`
+  3. `./gradlew gce2retrofit:test`
+
+
 ## Gradle plugin
 
 To compile the plugin locally:
@@ -15,6 +24,7 @@ To compile the plugin locally:
 
 If you are not seeing your changes after modifying the `gce2retrofit` code,
 `./gradlew clean` and try again.
+
 
 ## Command line
 
