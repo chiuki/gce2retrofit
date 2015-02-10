@@ -1,0 +1,46 @@
+{
+ "baseUrl": "https://nested-resources.appspot.com/_ah/api/helloworld/v1/",
+ "schemas": {
+  "TestObject": {
+   "id": "TestObject",
+   "type": "object",
+   "properties": {
+    "message": {
+     "type": "string"
+    }
+   }
+  }
+ },
+ "resources": {
+  "nested": {
+   "resources": {
+    "test": {
+     "methods": {
+      "getSomething": {
+       "id": "helloworld.nested.test.getSomething",
+       "path": "helloworld/nested/test/{id}",
+       "httpMethod": "GET",
+       "parameters": {
+        "id": {
+         "type": "integer",
+         "required": true,
+         "format": "int32",
+         "location": "path"
+        }
+       },
+       "parameterOrder": [
+        "id"
+       ],
+       "response": {
+        "$ref": "TestObject"
+       },
+       "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email"
+       ]
+      }
+     }
+    }
+   }
+  }
+ }
+}
