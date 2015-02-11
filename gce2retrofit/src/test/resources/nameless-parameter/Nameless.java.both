@@ -1,0 +1,23 @@
+package com.appspot.nameless_parameter;
+
+import com.appspot.nameless_parameter.model.*;
+
+import retrofit.Callback;
+import retrofit.http.Body;
+import retrofit.http.DELETE;
+import retrofit.http.GET;
+import retrofit.http.PATCH;
+import retrofit.http.POST;
+import retrofit.http.Path;
+import retrofit.http.Query;
+
+public interface Nameless {
+  @PATCH("/nameless/update")
+  TestObject patch(@Body TestObject resource);
+  @PATCH("/nameless/update")
+  void patch(@Body TestObject resource, Callback<TestObject> cb);
+  @POST("/nameless/update")
+  TestObject update(@Body TestObject resource);
+  @POST("/nameless/update")
+  void update(@Body TestObject resource, Callback<TestObject> cb);
+}

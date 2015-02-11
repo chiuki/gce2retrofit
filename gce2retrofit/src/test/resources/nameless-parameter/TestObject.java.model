@@ -1,0 +1,9 @@
+package com.appspot.nameless_parameter.model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+public class TestObject {
+  public String message;
+}

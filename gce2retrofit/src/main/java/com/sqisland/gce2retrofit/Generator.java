@@ -292,7 +292,7 @@ public class Generator {
 
     if (method.request != null) {
       params.add("@Body " + method.request.$ref + " " +
-          method.request.parameterName);
+          (method.request.parameterName != null ? method.request.parameterName : "resource"));
     }
     for (Entry<String, JsonElement> param : getParams(method)) {
       params.add(param2String(param));

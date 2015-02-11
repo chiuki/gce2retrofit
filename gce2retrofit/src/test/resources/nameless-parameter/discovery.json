@@ -1,0 +1,51 @@
+{
+ "baseUrl": "https://nameless-parameter.appspot.com/_ah/api/helloworld/v1/",
+ "schemas": {
+  "TestObject": {
+   "id": "TestObject",
+   "type": "object",
+   "properties": {
+    "message": {
+     "type": "string"
+    }
+   }
+  }
+ },
+ "resources": {
+  "nameless": {
+   "methods": {
+    "patch": {
+     "id": "helloworld.nameless.patch",
+     "path": "nameless/update",
+     "httpMethod": "PATCH",
+     "description": "This method supports patch semantics.",
+     "request": {
+      "$ref": "TestObject"
+     },
+     "response": {
+      "$ref": "TestObject"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    },
+    "update": {
+     "id": "helloworld.nameless.update",
+     "path": "nameless/update",
+     "httpMethod": "POST",
+     "description": "",
+     "request": {
+      "$ref": "TestObject",
+      "parameterName": "resource"
+     },
+     "response": {
+      "$ref": "TestObject"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    }
+   }
+  }
+ }
+}
