@@ -78,6 +78,20 @@ public final class GeneratorTest {
     assertThat(factory.getCount()).isEqualTo(2);
   }
 
+  @Test
+  public void testNamelessParameter() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/nameless-parameter/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+    Generator.generate(reader, factory, null, EnumSet.allOf(Generator.MethodType.class));
+    
+    assertThat(factory.getString("com/appspot/nameless_parameter/model/TestObject.java"))
+        .isEqualTo(getExpectedString("/nameless-parameter/TestObject.java.model"));
+    assertThat(factory.getString("com/appspot/nameless_parameter/Nameless.java"))
+        .isEqualTo(getExpectedString("/nameless-parameter/Nameless.java.both"));
+    assertThat(factory.getCount()).isEqualTo(2);
+  }
+
   private void doTestHelloGreeting(EnumSet<Generator.MethodType> methodTypes, String suffix)
       throws IOException, URISyntaxException {
     InputStreamReader reader = new InputStreamReader(
