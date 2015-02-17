@@ -16,7 +16,7 @@ e.g. https://2-dot-test-pont.appspot.com/_ah/api/discovery/v1/apis/helloworld/v1
 
 `methods.csv` (optional)
 
-Valid values are `sync` and `async`. If omitted, both synchronous and asynchronous
+Valid values are `sync`, `async` and `reactive`. If omitted, both synchronous and asynchronous
 interfaces will be generated.
 
 `classmap.tsv` (optional)
