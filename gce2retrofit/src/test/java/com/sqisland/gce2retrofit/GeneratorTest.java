@@ -17,7 +17,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(JUnit4.class)
 public final class GeneratorTest {
-  static final EnumSet<Generator.MethodType> BOTH_METHOD_TYPES = EnumSet.of(Generator.MethodType.SYNC, Generator.MethodType.ASYNC);
+  private static final EnumSet<Generator.MethodType> BOTH_METHOD_TYPES
+      = EnumSet.of(Generator.MethodType.SYNC, Generator.MethodType.ASYNC);
 
   @Test
   public void testHelloGreetingSync() throws IOException, URISyntaxException {
