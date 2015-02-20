@@ -17,6 +17,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(JUnit4.class)
 public final class GeneratorTest {
+  static final EnumSet<Generator.MethodType> BOTH_METHOD_TYPES = EnumSet.of(Generator.MethodType.SYNC, Generator.MethodType.ASYNC);
+
   @Test
   public void testHelloGreetingSync() throws IOException, URISyntaxException {
     doTestHelloGreeting(EnumSet.of(Generator.MethodType.SYNC), ".sync");
@@ -29,7 +31,12 @@ public final class GeneratorTest {
 
   @Test
   public void testHelloGreetingBoth() throws IOException, URISyntaxException {
-    doTestHelloGreeting(EnumSet.allOf(Generator.MethodType.class), ".both");
+    doTestHelloGreeting(BOTH_METHOD_TYPES, ".both");
+  }
+
+  @Test
+  public void testHelloGreetingReactive() throws IOException, URISyntaxException {
+    doTestHelloGreeting(EnumSet.of(Generator.MethodType.REACTIVE), ".reactive");
   }
 
   @Test
@@ -69,7 +76,7 @@ public final class GeneratorTest {
     InputStreamReader reader = new InputStreamReader(
         GeneratorTest.class.getResourceAsStream("/nested-resources/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
-    Generator.generate(reader, factory, null, EnumSet.allOf(Generator.MethodType.class));
+    Generator.generate(reader, factory, null, BOTH_METHOD_TYPES);
     
     assertThat(factory.getString("com/appspot/nested_resources/model/TestObject.java"))
         .isEqualTo(getExpectedString("/nested-resources/TestObject.java.model"));
@@ -83,7 +90,7 @@ public final class GeneratorTest {
     InputStreamReader reader = new InputStreamReader(
         GeneratorTest.class.getResourceAsStream("/nameless-parameter/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
-    Generator.generate(reader, factory, null, EnumSet.allOf(Generator.MethodType.class));
+    Generator.generate(reader, factory, null, BOTH_METHOD_TYPES);
     
     assertThat(factory.getString("com/appspot/nameless_parameter/model/TestObject.java"))
         .isEqualTo(getExpectedString("/nameless-parameter/TestObject.java.model"));

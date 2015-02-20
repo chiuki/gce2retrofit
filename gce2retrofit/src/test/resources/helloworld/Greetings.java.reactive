@@ -1,0 +1,24 @@
+package com.appspot.example;
+
+import com.appspot.example.model.*;
+
+import retrofit.Callback;
+import retrofit.http.Body;
+import retrofit.http.DELETE;
+import retrofit.http.GET;
+import retrofit.http.PATCH;
+import retrofit.http.POST;
+import retrofit.http.Path;
+import retrofit.http.Query;
+import rx.Observable;
+
+public interface Greetings {
+  @POST("/hellogreeting/authed")
+  Observable<HelloGreeting> authedRx();
+  @GET("/hellogreeting/{id}")
+  Observable<HelloGreeting> getGreetingRx(@Path("id") int id);
+  @GET("/hellogreeting")
+  Observable<HelloGreetingCollection> listGreetingRx();
+  @POST("/hellogreeting/{times}")
+  Observable<HelloGreeting> multiplyRx(@Body HelloGreeting resource, @Path("times") int times);
+}

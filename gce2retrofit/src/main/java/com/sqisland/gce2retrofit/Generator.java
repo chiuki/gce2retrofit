@@ -38,7 +38,7 @@ public class Generator {
   private static Gson gson = new Gson();
 
   public enum MethodType {
-    SYNC, ASYNC
+    SYNC, ASYNC, REACTIVE
   }
 
   public static void main(String... args)
@@ -76,7 +76,7 @@ public class Generator {
         OPTION_CLASS_MAP, true, "Map fields to classes. Format: field_name\\tclass_name");
     options.addOption(
         OPTION_METHODS, true,
-        "Methods to generate, either sync or async. Default is to generate both.");
+        "Methods to generate, either sync, async or reactive. Default is to generate sync & async.");
     return options;
   }
 
@@ -144,10 +144,13 @@ public class Generator {
         if ("async".equals(part) || "both".equals(part)) {
           methodTypes.add(MethodType.ASYNC);
         }
+        if ("reactive".equals(part)) {
+          methodTypes.add(MethodType.REACTIVE);
+        }
       }
     }
     if (methodTypes.isEmpty()) {
-      methodTypes = EnumSet.allOf(MethodType.class);
+      methodTypes = EnumSet.of(Generator.MethodType.ASYNC, Generator.MethodType.SYNC);
     }
     return methodTypes;
   }
@@ -259,8 +262,13 @@ public class Generator {
             "retrofit.http.DELETE",
             "retrofit.http.Body",
             "retrofit.http.Path",
-            "retrofit.http.Query")
-        .emitEmptyLine();
+            "retrofit.http.Query");
+
+    if (methodTypes.contains(MethodType.REACTIVE)) {
+      javaWriter.emitImports("rx.Observable");
+    }
+
+    javaWriter.emitEmptyLine();
 
     javaWriter.beginType(
         packageName + "." + className, "interface", EnumSet.of(PUBLIC));
@@ -269,14 +277,9 @@ public class Generator {
       String methodName = entry.getKey();
       Method method = gson.fromJson(entry.getValue(), Method.class);
 
-      if (methodTypes.contains(MethodType.SYNC)) {
+      for (MethodType methodType : methodTypes) {
         javaWriter.emitAnnotation(method.httpMethod, "\"/" + method.path + "\"");
-        emitMethodSignature(fileWriter, methodName, method, true);
-      }
-
-      if (methodTypes.contains(MethodType.ASYNC)) {
-        javaWriter.emitAnnotation(method.httpMethod, "\"/" + method.path + "\"");
-        emitMethodSignature(fileWriter, methodName, method, false);
+        emitMethodSignature(fileWriter, methodName, method, methodType);
       }
     }
 
@@ -287,7 +290,7 @@ public class Generator {
 
   // TODO: Use JavaWriter to emit method signature
   private static void emitMethodSignature(
-      Writer writer, String methodName, Method method, boolean synchronous) throws IOException {
+      Writer writer, String methodName, Method method, MethodType methodType) throws IOException {
     ArrayList<String> params = new ArrayList<String>();
 
     if (method.request != null) {
@@ -298,9 +301,16 @@ public class Generator {
       params.add(param2String(param));
     }
 
-    String returnValue = (synchronous && method.response != null) ? method.response.$ref : "void";
+    String returnValue = "void";
+    if (method.response != null) {
+      if (methodType == MethodType.SYNC) {
+        returnValue = method.response.$ref;
+      } else if (methodType == MethodType.REACTIVE) {
+        returnValue = "Observable<" + method.response.$ref + ">";
+      }
+    }
 
-    if (!synchronous) {
+    if (methodType == MethodType.ASYNC) {
       if (method.response == null) {
         params.add("Callback<Void> cb");
       } else {
@@ -308,7 +318,7 @@ public class Generator {
       }
     }
 
-    writer.append("  " + returnValue + " " + methodName + "(");
+    writer.append("  " + returnValue + " " + methodName + (methodType == MethodType.REACTIVE ? "Rx" : "") + "(");
     for (int i = 0; i < params.size(); ++i) {
       if (i != 0) {
         writer.append(", ");
