@@ -5,7 +5,7 @@
 The easiest way to add new functionality to the plugin is to write a new test case.
 
   1. Add a new folder to `test/resources` with `discovery.json` and the expected output.
-  2. Add a test case to `gce2retrofit/src/test/java/com/sqisland/gce2retrofit/GeneratorTest.java`
+  2. Add a test case to [`gce2retrofit/src/test/java/com/sqisland/gce2retrofit/GeneratorTest.java`](gce2retrofit/src/test/java/com/sqisland/gce2retrofit/GeneratorTest.java)
   3. `./gradlew gce2retrofit:test`
 
 
