@@ -16,22 +16,22 @@ public class PropertyType {
     }
 
     if ("boolean".equals(type)) {
-      return "boolean";
+      return "Boolean";
     }
 
     if ("integer".equals(type)) {
-      return "int";
+      return "Integer";
     }
 
     if ("number".equals(type)) {
       if ("double".equals(format)) {
-        return "double";
+        return "Double";
       }
       if ("float".equals(format)) {
-        return "float";
+        return "Float";
       }
       if ("int32".equals(format)) {
-        return "int";
+        return "Integer";
       }
     }
 

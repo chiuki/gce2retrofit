@@ -8,6 +8,6 @@ public class Party {
   public String name;
   public org.joda.time.DateTime start_time;
   public org.joda.time.DateTime end_time;
-  public int capacity;
-  public boolean outdoor;
+  public Integer capacity;
+  public Boolean outdoor;
 }

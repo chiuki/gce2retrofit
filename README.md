@@ -40,11 +40,19 @@ Apply the plugin in your `build.gradle`:
         }
       }
       dependencies {
-        classpath 'com.sqisland:gce2retrofit:1.0.0-SNAPSHOT'
+        classpath 'com.sqisland:gce2retrofit:1.1.0-SNAPSHOT'
       }
     }
 
     apply plugin: 'com.sqisland.gce2retrofit'
+
+## Upgrade guide
+
+### Version 1.1.0
+
+Primitives have been replaced by Objects e.g. `Integer` instead of `int`. Please go through your
+code and make sure that you check for `null` before using the value of any `Boolean`, `Integer`,
+`Float` and `Double`.
 
 ## Contributing
 

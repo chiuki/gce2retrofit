@@ -15,9 +15,9 @@ public interface Greetings {
   @POST("/hellogreeting/authed")
   HelloGreeting authed();
   @GET("/hellogreeting/{id}")
-  HelloGreeting getGreeting(@Path("id") int id);
+  HelloGreeting getGreeting(@Path("id") Integer id);
   @GET("/hellogreeting")
   HelloGreetingCollection listGreeting();
   @POST("/hellogreeting/{times}")
-  HelloGreeting multiply(@Body HelloGreeting resource, @Path("times") int times);
+  HelloGreeting multiply(@Body HelloGreeting resource, @Path("times") Integer times);
 }

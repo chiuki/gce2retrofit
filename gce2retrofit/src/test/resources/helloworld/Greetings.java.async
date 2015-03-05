@@ -15,9 +15,9 @@ public interface Greetings {
   @POST("/hellogreeting/authed")
   void authed(Callback<HelloGreeting> cb);
   @GET("/hellogreeting/{id}")
-  void getGreeting(@Path("id") int id, Callback<HelloGreeting> cb);
+  void getGreeting(@Path("id") Integer id, Callback<HelloGreeting> cb);
   @GET("/hellogreeting")
   void listGreeting(Callback<HelloGreetingCollection> cb);
   @POST("/hellogreeting/{times}")
-  void multiply(@Body HelloGreeting resource, @Path("times") int times, Callback<HelloGreeting> cb);
+  void multiply(@Body HelloGreeting resource, @Path("times") Integer times, Callback<HelloGreeting> cb);
 }

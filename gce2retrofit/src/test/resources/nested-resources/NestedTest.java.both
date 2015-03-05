@@ -13,7 +13,7 @@ import retrofit.http.Query;
 
 public interface NestedTest {
   @GET("/helloworld/nested/test/{id}")
-  TestObject getSomething(@Path("id") int id);
+  TestObject getSomething(@Path("id") Integer id);
   @GET("/helloworld/nested/test/{id}")
-  void getSomething(@Path("id") int id, Callback<TestObject> cb);
+  void getSomething(@Path("id") Integer id, Callback<TestObject> cb);
 }
