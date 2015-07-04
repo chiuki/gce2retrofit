@@ -1,6 +1,6 @@
 {
  "name": "acl",
- "baseUrl": "https://kyadev-kfkb.appspot.com/_ah/api/",
+ "rootUrl": "https://kyadev-kfkb.appspot.com/_ah/api/",
  "schemas": {
   "JsonMap": {
    "id": "JsonMap",

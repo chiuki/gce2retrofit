@@ -100,6 +100,9 @@ public class Generator {
     Discovery discovery = gson.fromJson(jsonReader, Discovery.class);
 
     String packageName = StringUtil.getPackageName(discovery.baseUrl);
+    if (packageName == null || packageName.isEmpty()) {
+      packageName = StringUtil.getPackageName(discovery.rootUrl);
+    }
     String modelPackageName = packageName + ".model";
 
     for (Entry<String, JsonElement> entry : discovery.schemas.entrySet()) {
