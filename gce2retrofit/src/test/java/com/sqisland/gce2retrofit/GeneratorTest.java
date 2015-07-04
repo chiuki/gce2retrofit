@@ -1,5 +1,9 @@
 package com.sqisland.gce2retrofit;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
@@ -8,10 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.Map;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -78,7 +78,7 @@ public final class GeneratorTest {
         GeneratorTest.class.getResourceAsStream("/nested-resources/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
     Generator.generate(reader, factory, null, BOTH_METHOD_TYPES);
-    
+
     assertThat(factory.getString("com/appspot/nested_resources/model/TestObject.java"))
         .isEqualTo(getExpectedString("/nested-resources/TestObject.java.model"));
     assertThat(factory.getString("com/appspot/nested_resources/NestedTest.java"))
@@ -92,7 +92,7 @@ public final class GeneratorTest {
         GeneratorTest.class.getResourceAsStream("/nameless-parameter/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
     Generator.generate(reader, factory, null, BOTH_METHOD_TYPES);
-    
+
     assertThat(factory.getString("com/appspot/nameless_parameter/model/TestObject.java"))
         .isEqualTo(getExpectedString("/nameless-parameter/TestObject.java.model"));
     assertThat(factory.getString("com/appspot/nameless_parameter/Nameless.java"))
@@ -131,6 +131,19 @@ public final class GeneratorTest {
     assertThat(factory.getString("com/appspot/kyatest_kfkb/Media.java"))
         .isEqualTo(getExpectedString("/enum/Media.java.sync"));
     assertThat(factory.getCount()).isEqualTo(3);
+  }
+
+  @Test
+  // https://github.com/chiuki/gce2retrofit/issues/9
+  public void testIssue9() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/issue9/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC));
+
+    assertThat(factory.getString("com/appspot/kyadev_kfkb/model/JsonMap.java"))
+        .isEqualTo(getExpectedString("/issue9/JsonMap.java.model"));
   }
 
   private static String getExpectedString(String path) throws URISyntaxException, IOException {

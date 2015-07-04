@@ -188,7 +188,11 @@ public class Generator {
   private static void generateObject(
       JavaWriter javaWriter, JsonObject schema, Map<String, String> classMap)
       throws IOException {
-    JsonObject properties = schema.get("properties").getAsJsonObject();
+    JsonElement element = schema.get("properties");
+    if (element == null) {
+      return;
+    }
+    JsonObject properties = element.getAsJsonObject();
     for (Entry<String, JsonElement> entry : properties.entrySet()) {
       String key = entry.getKey();
       String variableName = key;
