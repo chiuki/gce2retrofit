@@ -181,7 +181,7 @@ public class Generator {
       javaWriter.endType();
     } else if (type.equals("string")) {
       javaWriter.beginType(modelPackageName + "." + id, "enum", EnumSet.of(PUBLIC));
-      generateEnum(javaWriter, schema, classMap);
+      generateEnum(javaWriter, schema);
       javaWriter.endType();
     }
 
@@ -213,9 +213,7 @@ public class Generator {
     }
   }
 
-  private static void generateEnum(
-      JavaWriter javaWriter, JsonObject schema, Map<String, String> classMap)
-      throws IOException {
+  private static void generateEnum(JavaWriter javaWriter, JsonObject schema) throws IOException {
     JsonArray enums = schema.get("enum").getAsJsonArray();
     for (int i = 0; i < enums.size(); ++i) {
       javaWriter.emitEnumValue(enums.get(i).getAsString());
