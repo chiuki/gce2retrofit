@@ -3,6 +3,7 @@ package com.appspot.nested_resources;
 import com.appspot.nested_resources.model.*;
 
 import retrofit.Callback;
+import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.DELETE;
 import retrofit.http.GET;

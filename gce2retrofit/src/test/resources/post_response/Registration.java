@@ -1,6 +1,6 @@
-package com.appspot.kyatest_kfkb;
+package com.appspot.post_response;
 
-import com.appspot.kyatest_kfkb.model.*;
+import com.appspot.post_response.model.*;
 
 import retrofit.Callback;
 import retrofit.client.Response;
@@ -12,7 +12,7 @@ import retrofit.http.POST;
 import retrofit.http.Path;
 import retrofit.http.Query;
 
-public interface Media {
-  @GET("/media/{mediaKey}")
-  MediaGetDTO get(@Path("mediaKey") String mediaKey, @Query("token") String token);
+public interface Registration {
+  @POST("/registerDevice/{regId}")
+  Response register(@Path("regId") String regId);
 }

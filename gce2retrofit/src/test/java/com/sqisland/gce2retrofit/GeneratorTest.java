@@ -144,6 +144,21 @@ public final class GeneratorTest {
 
     assertThat(factory.getString("com/appspot/kyadev_kfkb/model/JsonMap.java"))
         .isEqualTo(getExpectedString("/issue9/JsonMap.java.model"));
+    assertThat(factory.getCount()).isEqualTo(1);
+  }
+
+  @Test
+  // https://github.com/chiuki/gce2retrofit/issues/11
+  public void testPostResponse() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/post_response/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC));
+
+    assertThat(factory.getString("com/appspot/post_response/Registration.java"))
+        .isEqualTo(getExpectedString("/post_response/Registration.java"));
+    assertThat(factory.getCount()).isEqualTo(1);
   }
 
   private static String getExpectedString(String path) throws URISyntaxException, IOException {

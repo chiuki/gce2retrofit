@@ -1,0 +1,26 @@
+{
+  "name": "registration",
+  "baseUrl": "https://post-response.appspot.com/_ah/api/registration/v1/",
+  "schemas": {
+  },
+  "methods": {
+    "register": {
+      "id": "registration.register",
+      "path": "registerDevice/{regId}",
+      "httpMethod": "POST",
+      "parameters": {
+        "regId": {
+          "type": "string",
+          "required": true,
+          "location": "path"
+        }
+      },
+      "parameterOrder": [
+        "regId"
+      ],
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email"
+      ]
+    }
+  }
+}

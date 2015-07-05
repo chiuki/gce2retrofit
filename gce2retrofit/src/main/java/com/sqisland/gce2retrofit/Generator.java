@@ -261,6 +261,7 @@ public class Generator {
         .emitEmptyLine()
         .emitImports(
             "retrofit.Callback",
+            "retrofit.client.Response",
             "retrofit.http.GET",
             "retrofit.http.POST",
             "retrofit.http.PATCH",
@@ -307,6 +308,9 @@ public class Generator {
     }
 
     String returnValue = "void";
+    if (methodType == MethodType.SYNC && "POST".equals(method.httpMethod)) {
+      returnValue = "Response";
+    }
     if (method.response != null) {
       if (methodType == MethodType.SYNC) {
         returnValue = method.response.$ref;
