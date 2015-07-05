@@ -27,6 +27,9 @@ public class GradleTask extends DefaultTask {
     WriterFactory factory = new FileWriterFactory(outputDir);
 
     for (File dir : inputDir.listFiles()) {
+      if (dir.name.startsWith(".")) {
+        continue;
+      }
       File discoveryFile = new File(dir, "discovery.json");
       Reader reader = new FileReader(discoveryFile);
 
