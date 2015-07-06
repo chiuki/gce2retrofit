@@ -151,13 +151,13 @@ public final class GeneratorTest {
   // https://github.com/chiuki/gce2retrofit/issues/11
   public void testPostResponse() throws IOException, URISyntaxException {
     InputStreamReader reader = new InputStreamReader(
-        GeneratorTest.class.getResourceAsStream("/post_response/discovery.json"));
+        GeneratorTest.class.getResourceAsStream("/post-response/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
 
     Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC));
 
     assertThat(factory.getString("com/appspot/post_response/Registration.java"))
-        .isEqualTo(getExpectedString("/post_response/Registration.java"));
+        .isEqualTo(getExpectedString("/post-response/Registration.java"));
     assertThat(factory.getCount()).isEqualTo(1);
   }
 
