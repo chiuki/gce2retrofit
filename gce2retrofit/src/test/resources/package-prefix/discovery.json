@@ -1,0 +1,36 @@
+{
+  "baseUrl": "https://package-prefix.appspot.com/_ah/api/prefix/v1/",
+  "schemas": {
+    "MyCompanyDatabaseUser": {
+      "id": "MyCompanyDatabaseUser",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "friends": {
+          "type": "array",
+          "items": {
+            "$ref": "MyCompanyDatabaseUser"
+          }
+        }
+      }
+    }
+  },
+  "resources": {
+    "greetings": {
+      "methods": {
+        "greet": {
+          "path": "greet",
+          "httpMethod": "POST",
+          "response": {
+            "$ref": "MyCompanyDatabaseUser"
+          },
+          "scopes": [
+            "https://www.googleapis.com/auth/userinfo.email"
+          ]
+        }
+      }
+    }
+  }
+}

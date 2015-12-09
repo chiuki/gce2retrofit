@@ -23,17 +23,21 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class Generator {
   private static final String OPTION_CLASS_MAP = "classmap";
   private static final String OPTION_METHODS = "methods";
+  private static final String OPTION_PACKAGE_MAP = "packagemap";
 
   private static Gson gson = new Gson();
 
@@ -62,12 +66,15 @@ public class Generator {
     String outputDir = arguments[1];
 
     Map<String, String> classMap = cmd.hasOption(OPTION_CLASS_MAP)?
-        readClassMap(new FileReader(cmd.getOptionValue(OPTION_CLASS_MAP))) : null;
+        readStringToStringMap(new FileReader(cmd.getOptionValue(OPTION_CLASS_MAP))) : null;
 
     EnumSet<MethodType> methodTypes = getMethods(cmd.getOptionValue(OPTION_METHODS));
 
+    Map<String, String> packageMap = cmd.hasOption(OPTION_PACKAGE_MAP)?
+        readStringToStringMap(new FileReader(cmd.getOptionValue(OPTION_PACKAGE_MAP))) : null;
+
     generate(new FileReader(discoveryFile), new FileWriterFactory(new File(outputDir)),
-        classMap, methodTypes);
+        classMap, methodTypes, packageMap);
   }
 
   private static Options getOptions() {
@@ -77,6 +84,8 @@ public class Generator {
     options.addOption(
         OPTION_METHODS, true,
         "Methods to generate, either sync, async or reactive. Default is to generate sync & async.");
+    options.addOption(
+        OPTION_PACKAGE_MAP, true, "Map class prefix to package directory. Format: prefix\\tdirectory");
     return options;
   }
 
@@ -95,6 +104,14 @@ public class Generator {
       Reader discoveryReader, WriterFactory writerFactory,
       Map<String, String> classMap, EnumSet<MethodType> methodTypes)
       throws IOException, URISyntaxException {
+    generate(discoveryReader, writerFactory, classMap, methodTypes, new HashMap<String, String>());
+  }
+
+  public static void generate(
+      Reader discoveryReader, WriterFactory writerFactory,
+      Map<String, String> classMap, EnumSet<MethodType> methodTypes,
+      Map<String, String> packageMap)
+      throws IOException, URISyntaxException {
     JsonReader jsonReader = new JsonReader(discoveryReader);
 
     Discovery discovery = gson.fromJson(jsonReader, Discovery.class);
@@ -107,33 +124,34 @@ public class Generator {
 
     for (Entry<String, JsonElement> entry : discovery.schemas.entrySet()) {
       generateModel(
-          writerFactory, modelPackageName, entry.getValue().getAsJsonObject(), classMap);
+          writerFactory, modelPackageName, entry.getValue().getAsJsonObject(),
+          classMap, packageMap);
     }
 
     if (discovery.resources != null) {
       generateInterfaceFromResources(
-          writerFactory, packageName, "", discovery.resources, methodTypes);
+          writerFactory, packageName, "", discovery.resources, methodTypes, packageMap);
     }
 
     if (discovery.name != null && discovery.methods != null) {
       generateInterface(
-          writerFactory, packageName, discovery.name, discovery.methods, methodTypes);
+          writerFactory, packageName, discovery.name, discovery.methods, methodTypes, packageMap);
     }
   }
 
-  public static Map<String, String> readClassMap(Reader reader) throws IOException {
-    Map<String, String> classMap = new HashMap<String, String>();
+  public static Map<String, String> readStringToStringMap(Reader reader) throws IOException {
+    Map<String, String> map = new HashMap<>();
 
     String line;
     BufferedReader bufferedReader = new BufferedReader(reader);
     while ((line = bufferedReader.readLine()) != null) {
       String[] fields = line.split("\t");
       if (fields.length == 2) {
-        classMap.put(fields[0], fields[1]);
+        map.put(fields[0], fields[1]);
       }
     }
 
-    return classMap;
+    return map;
   }
 
   public static EnumSet<MethodType> getMethods(String input) {
@@ -160,15 +178,37 @@ public class Generator {
 
   private static void generateModel(
       WriterFactory writerFactory, String modelPackageName,
-      JsonObject schema, Map<String, String> classMap)
+      JsonObject schema, Map<String, String> classMap, Map<String, String> packageMap)
       throws IOException {
     String id = schema.get("id").getAsString();
 
-    String path = StringUtil.getPath(modelPackageName, id + ".java");
+    ClassInfo classInfo = new ClassInfo(modelPackageName, id);
+    classInfo.movePackage(packageMap);
+
+    String path = StringUtil.getPath(classInfo.packageName, classInfo.className + ".java");
     Writer writer = writerFactory.getWriter(path);
     JavaWriter javaWriter = new JavaWriter(writer);
 
-    javaWriter.emitPackage(modelPackageName)
+    javaWriter.emitPackage(classInfo.packageName);
+
+    if (packageMap != null) {
+      ArrayList<String> dirs = new ArrayList<>(packageMap.values());
+      Collections.sort(dirs);
+      if (!modelPackageName.equals(classInfo.packageName)) {
+        javaWriter.emitImports(modelPackageName + ".*");
+      }
+      for (String dir : dirs) {
+        String packageName = modelPackageName + "." + dir;
+        if (!packageName.equals(classInfo.packageName)) {
+          javaWriter.emitImports(packageName + ".*");
+        }
+      }
+      if (!dirs.isEmpty()) {
+        javaWriter.emitEmptyLine();
+      }
+    }
+
+    javaWriter
         .emitImports("com.google.gson.annotations.SerializedName")
         .emitEmptyLine()
         .emitImports("java.util.List")
@@ -176,11 +216,13 @@ public class Generator {
 
     String type = schema.get("type").getAsString();
     if (type.equals("object")) {
-      javaWriter.beginType(modelPackageName + "." + id, "class", EnumSet.of(PUBLIC));
-      generateObject(javaWriter, schema, classMap);
+      javaWriter.beginType(
+          classInfo.packageName + "." + classInfo.className, "class", EnumSet.of(PUBLIC));
+      generateObject(javaWriter, schema, classMap, modelPackageName, packageMap);
       javaWriter.endType();
     } else if (type.equals("string")) {
-      javaWriter.beginType(modelPackageName + "." + id, "enum", EnumSet.of(PUBLIC));
+      javaWriter.beginType(
+          classInfo.packageName + "." + classInfo.className, "enum", EnumSet.of(PUBLIC));
       generateEnum(javaWriter, schema);
       javaWriter.endType();
     }
@@ -189,7 +231,8 @@ public class Generator {
   }
 
   private static void generateObject(
-      JavaWriter javaWriter, JsonObject schema, Map<String, String> classMap)
+      JavaWriter javaWriter, JsonObject schema,
+      Map<String, String> classMap, String packageName, Map<String, String> packageMap)
       throws IOException {
     JsonElement element = schema.get("properties");
     if (element == null) {
@@ -209,7 +252,15 @@ public class Generator {
       if (classMap != null && classMap.containsKey(key)) {
         javaType = classMap.get(key);
       }
-      javaWriter.emitField(javaType, variableName, EnumSet.of(PUBLIC));
+
+      boolean isList = javaType.startsWith("List<");
+      if (isList) {
+        javaType = javaType.substring(5, javaType.length() - 1);
+      }
+      ClassInfo classInfo = new ClassInfo(packageName, javaType);
+      classInfo.movePackage(packageMap);
+      javaWriter.emitField(isList ? "List<" + classInfo.className + ">" : classInfo.className,
+          variableName, EnumSet.of(PUBLIC));
     }
   }
 
@@ -222,8 +273,8 @@ public class Generator {
 
   private static void generateInterfaceFromResources(
       WriterFactory writerFactory, String packageName,
-      String resourceName, JsonObject resources, 
-      EnumSet<MethodType> methodTypes)
+      String resourceName, JsonObject resources,
+      EnumSet<MethodType> methodTypes, Map<String, String> packageMap)
       throws IOException {
     for (Entry<String, JsonElement> entry : resources.entrySet()) {
       JsonObject entryValue = entry.getValue().getAsJsonObject();
@@ -232,14 +283,44 @@ public class Generator {
         generateInterface(writerFactory, packageName,
             resourceName + "_" + entry.getKey(),
             entryValue.get("methods").getAsJsonObject(),
-            methodTypes);
+            methodTypes, packageMap);
       }
     
       if (entryValue.has("resources")) {
         generateInterfaceFromResources(writerFactory, packageName,
             resourceName + "_" + entry.getKey(),
             entryValue.get("resources").getAsJsonObject(),
-            methodTypes);
+            methodTypes, packageMap);
+      }
+    }
+  }
+
+  private static String getPrefix(Map<String, String> packageMap, String className) {
+    if (packageMap == null) {
+      return null;
+    }
+    for (String prefix : packageMap.keySet()) {
+      if (className.startsWith(prefix)) {
+        return prefix;
+      }
+    }
+    return null;
+  }
+
+  private static class ClassInfo {
+    public String packageName;
+    public String className;
+
+    public ClassInfo(String packageName, String className) {
+      this.packageName = packageName;
+      this.className = className;
+    }
+
+    public void movePackage(Map<String, String> packageMap) {
+      String prefix = getPrefix(packageMap, className);
+      if (prefix != null) {
+        packageName += "." + packageMap.get(prefix);
+        className = className.substring(prefix.length());
       }
     }
   }
@@ -247,18 +328,39 @@ public class Generator {
   private static void generateInterface(
       WriterFactory writerFactory, String packageName,
       String resourceName, JsonObject methods,
-      EnumSet<MethodType> methodTypes)
+      EnumSet<MethodType> methodTypes, Map<String, String> packageMap)
       throws IOException {
     String capitalizedName = WordUtils.capitalizeFully(resourceName, '_');
     String className = capitalizedName.replaceAll("_", "");
 
-    String path = StringUtil.getPath(packageName, className + ".java");
+    ClassInfo classInfo = new ClassInfo(packageName, className);
+    classInfo.movePackage(packageMap);
+
+    String path = StringUtil.getPath(classInfo.packageName, classInfo.className + ".java");
     Writer fileWriter = writerFactory.getWriter(path);
     JavaWriter javaWriter = new JavaWriter(fileWriter);
 
-    javaWriter.emitPackage(packageName)
-        .emitImports(packageName + ".model.*")
-        .emitEmptyLine()
+    javaWriter.emitPackage(packageName);
+
+    javaWriter.emitImports(packageName + ".model.*");
+
+    if (packageMap != null) {
+      Set<String> models = getModels(methods);
+      Set<String> subdirectories = new HashSet<>(models.size());
+      for (String model : models) {
+        String dir = packageMap.get(getPrefix(packageMap, model));
+        if (dir != null) {
+          subdirectories.add(dir);
+        }
+      }
+      ArrayList<String> dirs = new ArrayList<>(subdirectories);
+      Collections.sort(dirs);
+      for (String dir : dirs) {
+        javaWriter.emitImports(packageName + ".model." + dir + ".*");
+      }
+    }
+
+    javaWriter.emitEmptyLine()
         .emitImports(
             "retrofit.Callback",
             "retrofit.client.Response",
@@ -285,7 +387,7 @@ public class Generator {
 
       for (MethodType methodType : methodTypes) {
         javaWriter.emitAnnotation(method.httpMethod, "\"/" + method.path + "\"");
-        emitMethodSignature(fileWriter, methodName, method, methodType);
+        emitMethodSignature(fileWriter, methodName, method, methodType, packageMap);
       }
     }
 
@@ -294,17 +396,45 @@ public class Generator {
     fileWriter.close();
   }
 
+  private static Set<String> getModels(JsonObject methods) {
+    Set<String> models = new HashSet<>();
+    for (Entry<String, JsonElement> entry : methods.entrySet()) {
+      Method method = gson.fromJson(entry.getValue(), Method.class);
+      if (method.request != null && method.request.$ref != null) {
+        models.add(method.request.$ref);
+      }
+      if (method.response != null && method.response.$ref != null) {
+        models.add(method.response.$ref);
+      }
+      for (Entry<String, JsonElement> param : getParams(method)) {
+        ParameterType paramType = gson.fromJson(
+            param.getValue(), ParameterType.class);
+        String type = paramType.toJavaType();
+        if (!paramType.required) {
+          type = StringUtil.primitiveToObject(type);
+        }
+        models.add(type);
+      }
+    }
+    return models;
+  }
+
   // TODO: Use JavaWriter to emit method signature
   private static void emitMethodSignature(
-      Writer writer, String methodName, Method method, MethodType methodType) throws IOException {
-    ArrayList<String> params = new ArrayList<String>();
+      Writer writer, String methodName, Method method, MethodType methodType,
+      Map<String, String> packageMap) throws IOException {
+    ArrayList<String> params = new ArrayList<>();
 
     if (method.request != null) {
-      params.add("@Body " + method.request.$ref + " " +
+      ClassInfo classInfo = new ClassInfo("", method.request.$ref);
+      classInfo.movePackage(packageMap);
+      params.add("@Body " + classInfo.className + " " +
           (method.request.parameterName != null ? method.request.parameterName : "resource"));
     }
     for (Entry<String, JsonElement> param : getParams(method)) {
-      params.add(param2String(param));
+      ClassInfo classInfo = new ClassInfo("", param2String(param));
+      classInfo.movePackage(packageMap);
+      params.add(classInfo.className);
     }
 
     String returnValue = "void";
@@ -312,10 +442,12 @@ public class Generator {
       returnValue = "Response";
     }
     if (method.response != null) {
+      ClassInfo classInfo = new ClassInfo("", method.response.$ref);
+      classInfo.movePackage(packageMap);
       if (methodType == MethodType.SYNC) {
-        returnValue = method.response.$ref;
+        returnValue = classInfo.className;
       } else if (methodType == MethodType.REACTIVE) {
-        returnValue = "Observable<" + method.response.$ref + ">";
+        returnValue = "Observable<" + classInfo.className + ">";
       }
     }
 
@@ -323,7 +455,9 @@ public class Generator {
       if (method.response == null) {
         params.add("Callback<Void> cb");
       } else {
-        params.add("Callback<" + method.response.$ref + "> cb");
+        ClassInfo classInfo = new ClassInfo("", method.response.$ref);
+        classInfo.movePackage(packageMap);
+        params.add("Callback<" + classInfo.className + "> cb");
       }
     }
 

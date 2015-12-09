@@ -1,0 +1,19 @@
+package com.appspot.package_prefix;
+
+import com.appspot.package_prefix.model.*;
+import com.appspot.package_prefix.model.db.*;
+
+import retrofit.Callback;
+import retrofit.client.Response;
+import retrofit.http.Body;
+import retrofit.http.DELETE;
+import retrofit.http.GET;
+import retrofit.http.PATCH;
+import retrofit.http.POST;
+import retrofit.http.Path;
+import retrofit.http.Query;
+
+public interface Greetings {
+  @POST("/greet")
+  User greet();
+}

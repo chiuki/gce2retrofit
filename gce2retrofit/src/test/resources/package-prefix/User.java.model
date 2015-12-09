@@ -1,0 +1,12 @@
+package com.appspot.package_prefix.model.db;
+
+import com.appspot.package_prefix.model.*;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+public class User {
+  public String name;
+  public List<User> friends;
+}

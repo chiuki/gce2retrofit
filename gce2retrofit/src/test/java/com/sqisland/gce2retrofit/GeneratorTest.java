@@ -46,7 +46,7 @@ public final class GeneratorTest {
         GeneratorTest.class.getResourceAsStream("/joda-time/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
 
-    Map<String, String> classMap = Generator.readClassMap(new InputStreamReader(
+    Map<String, String> classMap = Generator.readStringToStringMap(new InputStreamReader(
         GeneratorTest.class.getResourceAsStream("/joda-time/classmap.tsv")));
     assertThat(classMap).containsEntry("start_time", "org.joda.time.DateTime");
     assertThat(classMap).containsEntry("end_time", "org.joda.time.DateTime");
@@ -159,6 +159,26 @@ public final class GeneratorTest {
     assertThat(factory.getString("com/appspot/post_response/Registration.java"))
         .isEqualTo(getExpectedString("/post-response/Registration.java"));
     assertThat(factory.getCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void testPackagePrefix() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/package-prefix/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Map<String, String> packageMap = Generator.readStringToStringMap(new InputStreamReader(
+        GeneratorTest.class.getResourceAsStream("/package-prefix/packagemap.tsv")));
+    assertThat(packageMap).containsEntry("MyCompanyDatabase", "db");
+    assertThat(packageMap).hasSize(1);
+
+    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC), packageMap);
+
+    assertThat(factory.getString("com/appspot/package_prefix/model/db/User.java"))
+        .isEqualTo(getExpectedString("/package-prefix/User.java.model"));
+    assertThat(factory.getString("com/appspot/package_prefix/Greetings.java"))
+        .isEqualTo(getExpectedString("/package-prefix/Greetings.java.sync"));
+    assertThat(factory.getCount()).isEqualTo(2);
   }
 
   private static String getExpectedString(String path) throws URISyntaxException, IOException {

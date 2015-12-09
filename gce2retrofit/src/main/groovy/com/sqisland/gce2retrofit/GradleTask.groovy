@@ -1,16 +1,6 @@
-package com.sqisland.gce2retrofit;
+package com.sqisland.gce2retrofit
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.net.URISyntaxException;
-import java.util.EnumSet;
-import java.util.Map;
-
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Project;
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
@@ -36,7 +26,7 @@ public class GradleTask extends DefaultTask {
       Map<String, String> classMap = null;
       File classMapFile = new File(dir, "classmap.tsv");
       if (classMapFile.isFile()) {
-        classMap = Generator.readClassMap(new FileReader(classMapFile));
+        classMap = Generator.readStringToStringMap(new FileReader(classMapFile));
       }
 
       String methodTypesString = null;
@@ -48,7 +38,13 @@ public class GradleTask extends DefaultTask {
       }
       EnumSet<Generator.MethodType> methodTypes = Generator.getMethods(methodTypesString);
 
-      Generator.generate(reader, factory, classMap, methodTypes);
+      Map<String, String> packageMap = null;
+      File packageMapFile = new File(dir, "packagemap.tsv");
+      if (packageMapFile.isFile()) {
+        packageMap = Generator.readStringToStringMap(new FileReader(packageMapFile));
+      }
+
+      Generator.generate(reader, factory, classMap, methodTypes, packageMap);
     }
   }
 }
