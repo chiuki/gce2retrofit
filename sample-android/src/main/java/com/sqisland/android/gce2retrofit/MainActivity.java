@@ -2,16 +2,17 @@ package com.sqisland.android.gce2retrofit;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.googleapis.www.Apis;
 import com.googleapis.www.model.DirectoryList;
 
-import retrofit.Callback;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends Activity {
   private static final String API_URL = "https://www.googleapis.com/discovery/v1/";
@@ -23,23 +24,25 @@ public class MainActivity extends Activity {
     final TextView textView = new TextView(this);
     setContentView(textView);
 
-    RestAdapter restAdapter = new RestAdapter.Builder()
-        .setEndpoint(API_URL)
+    Retrofit restAdapter = new Retrofit.Builder()
+        .baseUrl(API_URL)
+        .addConverterFactory(GsonConverterFactory.create())
         .build();
 
     Apis apis = restAdapter.create(Apis.class);
-
-    Callback<DirectoryList> callback = new Callback<DirectoryList>() {
+    Call<DirectoryList> call = apis.list(null, null);
+    call.enqueue(new Callback<DirectoryList>() {
       @Override
-      public void success(DirectoryList directoryList, Response response) {
-        textView.setText(directoryList.kind);
+      public void onResponse(Call<DirectoryList> call, Response<DirectoryList> response) {
+        textView.setText(response.body().kind);
       }
-
       @Override
-      public void failure(RetrofitError error) {
-        Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+      public void onFailure(Call<DirectoryList> call, Throwable t) {
+        String msg = t.getMessage();
+        if (TextUtils.isEmpty(msg)) {
+          textView.setText(t.getClass().getSimpleName());
+        }
       }
-    };
-    apis.list(null, null, callback);
+    });
   }
 }

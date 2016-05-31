@@ -42,7 +42,7 @@ public class Generator {
   private static Gson gson = new Gson();
 
   public enum MethodType {
-    SYNC, ASYNC, REACTIVE
+    SYNC, ASYNC, REACTIVE, V2
   }
 
   public static void main(String... args)
@@ -83,7 +83,7 @@ public class Generator {
         OPTION_CLASS_MAP, true, "Map fields to classes. Format: field_name\\tclass_name");
     options.addOption(
         OPTION_METHODS, true,
-        "Methods to generate, either sync, async or reactive. Default is to generate sync & async.");
+        "Methods to generate, either sync, async, reactive or v2. Default is to generate sync & async.");
     options.addOption(
         OPTION_PACKAGE_MAP, true, "Map class prefix to package directory. Format: prefix\\tdirectory");
     return options;
@@ -167,6 +167,9 @@ public class Generator {
         }
         if ("reactive".equals(part)) {
           methodTypes.add(MethodType.REACTIVE);
+        }
+        if ("v2".equals(part)) {
+          methodTypes.add(MethodType.V2);
         }
       }
     }
@@ -278,14 +281,14 @@ public class Generator {
       throws IOException {
     for (Entry<String, JsonElement> entry : resources.entrySet()) {
       JsonObject entryValue = entry.getValue().getAsJsonObject();
-      
+
       if (entryValue.has("methods")) {
         generateInterface(writerFactory, packageName,
             resourceName + "_" + entry.getKey(),
             entryValue.get("methods").getAsJsonObject(),
             methodTypes, packageMap);
       }
-    
+
       if (entryValue.has("resources")) {
         generateInterfaceFromResources(writerFactory, packageName,
             resourceName + "_" + entry.getKey(),
@@ -360,18 +363,32 @@ public class Generator {
       }
     }
 
-    javaWriter.emitEmptyLine()
-        .emitImports(
-            "retrofit.Callback",
-            "retrofit.client.Response",
-            "retrofit.http.GET",
-            "retrofit.http.POST",
-            "retrofit.http.PATCH",
-            "retrofit.http.PUT",
-            "retrofit.http.DELETE",
-            "retrofit.http.Body",
-            "retrofit.http.Path",
-            "retrofit.http.Query");
+    if (methodTypes.contains(MethodType.V2)) {
+      javaWriter.emitEmptyLine()
+          .emitImports(
+              "retrofit2.Call",
+              "retrofit2.http.GET",
+              "retrofit2.http.POST",
+              "retrofit2.http.PATCH",
+              "retrofit2.http.PUT",
+              "retrofit2.http.DELETE",
+              "retrofit2.http.Body",
+              "retrofit2.http.Path",
+              "retrofit2.http.Query");
+    } else {
+      javaWriter.emitEmptyLine()
+          .emitImports(
+              "retrofit.Callback",
+              "retrofit.client.Response",
+              "retrofit.http.GET",
+              "retrofit.http.POST",
+              "retrofit.http.PATCH",
+              "retrofit.http.PUT",
+              "retrofit.http.DELETE",
+              "retrofit.http.Body",
+              "retrofit.http.Path",
+              "retrofit.http.Query");
+    }
 
     if (methodTypes.contains(MethodType.REACTIVE)) {
       javaWriter.emitImports("rx.Observable");
@@ -387,7 +404,8 @@ public class Generator {
       Method method = gson.fromJson(entry.getValue(), Method.class);
 
       for (MethodType methodType : methodTypes) {
-        javaWriter.emitAnnotation(method.httpMethod, "\"/" + method.path + "\"");
+        String prefix = methodType.equals(MethodType.V2) ? "" : "/";
+        javaWriter.emitAnnotation(method.httpMethod, "\"" + prefix + method.path + "\"");
         emitMethodSignature(fileWriter, methodName, method, methodType, packageMap);
       }
     }
@@ -442,13 +460,24 @@ public class Generator {
     if (methodType == MethodType.SYNC && "POST".equals(method.httpMethod)) {
       returnValue = "Response";
     }
+
+
+    String className = "Void";
     if (method.response != null) {
       ClassInfo classInfo = new ClassInfo("", method.response.$ref);
       classInfo.movePackage(packageMap);
-      if (methodType == MethodType.SYNC) {
-        returnValue = classInfo.className;
-      } else if (methodType == MethodType.REACTIVE) {
-        returnValue = "Observable<" + classInfo.className + ">";
+      className = classInfo.className;
+    }
+
+    if (methodType == MethodType.V2) {
+      returnValue = "Call<" + className + ">";
+    } else {
+      if (method.response != null) {
+        if (methodType == MethodType.SYNC) {
+          returnValue = className;
+        } else if (methodType == MethodType.REACTIVE) {
+          returnValue = "Observable<" + className + ">";
+        }
       }
     }
 

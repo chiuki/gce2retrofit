@@ -41,6 +41,11 @@ public final class GeneratorTest {
   }
 
   @Test
+  public void testHelloGreetingV2() throws IOException, URISyntaxException {
+    doTestHelloGreeting(EnumSet.of(Generator.MethodType.V2), ".v2");
+  }
+
+  @Test
   public void testClassMapJodaTime() throws IOException, URISyntaxException {
     InputStreamReader reader = new InputStreamReader(
         GeneratorTest.class.getResourceAsStream("/joda-time/discovery.json"));

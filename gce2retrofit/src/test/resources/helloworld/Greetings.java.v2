@@ -1,0 +1,24 @@
+package com.appspot.example;
+
+import com.appspot.example.model.*;
+
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.PATCH;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+
+public interface Greetings {
+  @POST("hellogreeting/authed")
+  Call<HelloGreeting> authed();
+  @GET("hellogreeting/{id}")
+  Call<HelloGreeting> getGreeting(@Path("id") Integer id);
+  @GET("hellogreeting")
+  Call<HelloGreetingCollection> listGreeting();
+  @POST("hellogreeting/{times}")
+  Call<HelloGreeting> multiply(@Body HelloGreeting resource, @Path("times") Integer times);
+}
