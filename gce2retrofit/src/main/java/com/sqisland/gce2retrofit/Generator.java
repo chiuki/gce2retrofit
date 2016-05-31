@@ -367,6 +367,7 @@ public class Generator {
             "retrofit.http.GET",
             "retrofit.http.POST",
             "retrofit.http.PATCH",
+            "retrofit.http.PUT",
             "retrofit.http.DELETE",
             "retrofit.http.Body",
             "retrofit.http.Path",

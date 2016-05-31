@@ -1,6 +1,6 @@
 apply plugin: 'application'
 
-mainClassName = 'com.sqisland.gce2retrofit.hello.HelloWorld'
+mainClassName = 'com.sqisland.gce2retrofit.discovery.Discovery'
 
 dependencies {
   compile 'com.squareup.retrofit:retrofit:1.9.0'
@@ -22,7 +22,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'com.sqisland:gce2retrofit:1.1.0-SNAPSHOT'
+    classpath 'com.sqisland:gce2retrofit:1.2.0-SNAPSHOT'
   }
 }
 
