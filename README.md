@@ -40,7 +40,7 @@ Apply the plugin in your `build.gradle`:
         }
       }
       dependencies {
-        classpath 'com.sqisland:gce2retrofit:1.2.0-SNAPSHOT'
+        classpath 'com.sqisland:gce2retrofit:1.4.0-SNAPSHOT'
       }
     }
 
