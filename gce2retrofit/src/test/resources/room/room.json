@@ -1,0 +1,12 @@
+{
+  "HelloGreeting" : {
+    "annotation" : "Entity",
+    "attributes" : {
+      'tableName' : '"hello_greeting"',
+      'indices' : '@Index(value = "id")'
+    }
+  },
+  "HelloGreeting.id" : {
+    "annotation" : "PrimaryKey"
+  }
+}

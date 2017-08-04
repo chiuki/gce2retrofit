@@ -1,0 +1,21 @@
+package com.appspot.example.model;
+
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.ColumnInfo.SQLiteTypeAffinity;
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.ForeignKey.Action;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+@Entity(tableName = "hello_greeting", indices = @Index(value = "id"))
+public class HelloGreeting {
+  @PrimaryKey
+  public String id;
+  public String message;
+}

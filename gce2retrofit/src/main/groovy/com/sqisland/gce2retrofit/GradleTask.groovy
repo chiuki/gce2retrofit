@@ -44,7 +44,13 @@ public class GradleTask extends DefaultTask {
         packageMap = Generator.readStringToStringMap(new FileReader(packageMapFile));
       }
 
-      Generator.generate(reader, factory, classMap, methodTypes, packageMap);
+      Map<String, AnnotationType> annotationMap = null;
+      File annotationMapFile = new File(dir, "room.json");
+      if (annotationMapFile.isFile()) {
+        annotationMap = Generator.readAnnotationMap(new FileReader(annotationMapFile));
+      }
+
+      Generator.generate(reader, factory, classMap, methodTypes, packageMap, annotationMap);
     }
   }
 }

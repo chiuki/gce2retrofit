@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.squareup.javawriter.JavaWriter;
 
@@ -21,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +40,23 @@ public class Generator {
   private static final String OPTION_CLASS_MAP = "classmap";
   private static final String OPTION_METHODS = "methods";
   private static final String OPTION_PACKAGE_MAP = "packagemap";
+  private static final String OPTION_ROOM_ANNOTATION_MAP = "room";
 
   private static Gson gson = new Gson();
+
+  private static final List<String> roomImports = new ArrayList<String>() {
+    {
+      add("android.arch.persistence.room.ColumnInfo");
+      add("android.arch.persistence.room.ColumnInfo.SQLiteTypeAffinity");
+      add("android.arch.persistence.room.Embedded");
+      add("android.arch.persistence.room.Entity");
+      add("android.arch.persistence.room.ForeignKey");
+      add("android.arch.persistence.room.ForeignKey.Action");
+      add("android.arch.persistence.room.Ignore");
+      add("android.arch.persistence.room.Index");
+      add("android.arch.persistence.room.PrimaryKey");
+    }
+  };
 
   public enum MethodType {
     SYNC, ASYNC, REACTIVE, V2
@@ -73,8 +90,11 @@ public class Generator {
     Map<String, String> packageMap = cmd.hasOption(OPTION_PACKAGE_MAP)?
         readStringToStringMap(new FileReader(cmd.getOptionValue(OPTION_PACKAGE_MAP))) : null;
 
+    Map<String, AnnotationType> roomAnnotationMap = cmd.hasOption(OPTION_ROOM_ANNOTATION_MAP)?
+      readAnnotationMap(new FileReader(cmd.getOptionValue(OPTION_ROOM_ANNOTATION_MAP))) : null;
+
     generate(new FileReader(discoveryFile), new FileWriterFactory(new File(outputDir)),
-        classMap, methodTypes, packageMap);
+        classMap, methodTypes, packageMap, roomAnnotationMap);
   }
 
   private static Options getOptions() {
@@ -86,6 +106,9 @@ public class Generator {
         "Methods to generate, either sync, async, reactive or v2. Default is to generate sync & async.");
     options.addOption(
         OPTION_PACKAGE_MAP, true, "Map class prefix to package directory. Format: prefix\\tdirectory");
+    options.addOption(
+        OPTION_ROOM_ANNOTATION_MAP, true, "Map room library annotations to classes/fields.");
+
     return options;
   }
 
@@ -104,13 +127,14 @@ public class Generator {
       Reader discoveryReader, WriterFactory writerFactory,
       Map<String, String> classMap, EnumSet<MethodType> methodTypes)
       throws IOException, URISyntaxException {
-    generate(discoveryReader, writerFactory, classMap, methodTypes, new HashMap<String, String>());
+    generate(discoveryReader, writerFactory, classMap, methodTypes, new HashMap<String, String>(), new HashMap<>());
   }
 
   public static void generate(
       Reader discoveryReader, WriterFactory writerFactory,
       Map<String, String> classMap, EnumSet<MethodType> methodTypes,
-      Map<String, String> packageMap)
+      Map<String, String> packageMap,
+      Map<String, AnnotationType> roomAnnotationMap)
       throws IOException, URISyntaxException {
     JsonReader jsonReader = new JsonReader(discoveryReader);
 
@@ -125,7 +149,7 @@ public class Generator {
     for (Entry<String, JsonElement> entry : discovery.schemas.entrySet()) {
       generateModel(
           writerFactory, modelPackageName, entry.getValue().getAsJsonObject(),
-          classMap, packageMap);
+          classMap, packageMap, roomAnnotationMap);
     }
 
     if (discovery.resources != null) {
@@ -137,6 +161,12 @@ public class Generator {
       generateInterface(
           writerFactory, packageName, discovery.name, discovery.methods, methodTypes, packageMap);
     }
+  }
+
+  public static Map<String, AnnotationType> readAnnotationMap(Reader reader) throws IOException {
+    final Type type = new TypeToken<Map<String, AnnotationType>>(){}.getType();
+    final Map<String, AnnotationType> annotationMap = gson.fromJson(reader, type);
+    return annotationMap;
   }
 
   public static Map<String, String> readStringToStringMap(Reader reader) throws IOException {
@@ -181,7 +211,8 @@ public class Generator {
 
   private static void generateModel(
       WriterFactory writerFactory, String modelPackageName,
-      JsonObject schema, Map<String, String> classMap, Map<String, String> packageMap)
+      JsonObject schema, Map<String, String> classMap, Map<String, String> packageMap,
+      Map<String, AnnotationType> roomAnnotationMap)
       throws IOException {
     String id = schema.get("id").getAsString();
 
@@ -211,6 +242,10 @@ public class Generator {
       }
     }
 
+    if (roomAnnotationMap != null && !roomAnnotationMap.isEmpty()) {
+      javaWriter.emitImports(roomImports);
+    }
+
     javaWriter
         .emitImports("com.google.gson.annotations.SerializedName")
         .emitEmptyLine()
@@ -219,9 +254,17 @@ public class Generator {
 
     String type = schema.get("type").getAsString();
     if (type.equals("object")) {
+      if (roomAnnotationMap != null && roomAnnotationMap.containsKey(id)) {
+        final AnnotationType annotationType = roomAnnotationMap.get(id);
+        if (annotationType.attributes == null) {
+          javaWriter.emitAnnotation(annotationType.annotation);
+        } else {
+          javaWriter.emitAnnotation(annotationType.annotation, annotationType.attributes);
+        }
+      }
       javaWriter.beginType(
           classInfo.packageName + "." + classInfo.className, "class", EnumSet.of(PUBLIC));
-      generateObject(javaWriter, schema, classMap, modelPackageName, packageMap);
+      generateObject(javaWriter, schema, classMap, modelPackageName, packageMap, roomAnnotationMap);
       javaWriter.endType();
     } else if (type.equals("string")) {
       javaWriter.beginType(
@@ -235,12 +278,14 @@ public class Generator {
 
   private static void generateObject(
       JavaWriter javaWriter, JsonObject schema,
-      Map<String, String> classMap, String packageName, Map<String, String> packageMap)
+      Map<String, String> classMap, String packageName, Map<String, String> packageMap,
+      Map<String, AnnotationType> roomAnnnotationMap)
       throws IOException {
     JsonElement element = schema.get("properties");
     if (element == null) {
       return;
     }
+    String id = schema.get("id").getAsString();
     JsonObject properties = element.getAsJsonObject();
     for (Entry<String, JsonElement> entry : properties.entrySet()) {
       String key = entry.getKey();
@@ -248,6 +293,15 @@ public class Generator {
       if (StringUtil.isReservedWord(key)) {
         javaWriter.emitAnnotation("SerializedName(\"" + key + "\")");
         variableName += "_";
+      }
+      final String annotationKey = id + "." + key;
+      if (roomAnnnotationMap != null && roomAnnnotationMap.containsKey(annotationKey)) {
+        final AnnotationType annotationType = roomAnnnotationMap.get(annotationKey);
+        if (annotationType.attributes == null) {
+          javaWriter.emitAnnotation(annotationType.annotation);
+        } else {
+          javaWriter.emitAnnotation(annotationType.annotation, annotationType.attributes);
+        }
       }
       PropertyType propertyType = gson.fromJson(
           entry.getValue(), PropertyType.class);

@@ -177,13 +177,28 @@ public final class GeneratorTest {
     assertThat(packageMap).containsEntry("MyCompanyDatabase", "db");
     assertThat(packageMap).hasSize(1);
 
-    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC), packageMap);
+    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC), packageMap, null);
 
     assertThat(factory.getString("com/appspot/package_prefix/model/db/User.java"))
         .isEqualTo(getExpectedString("/package-prefix/User.java.model"));
     assertThat(factory.getString("com/appspot/package_prefix/Greetings.java"))
         .isEqualTo(getExpectedString("/package-prefix/Greetings.java.sync"));
     assertThat(factory.getCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void testRoomAnnotations() throws IOException, URISyntaxException {
+    InputStreamReader reader = new InputStreamReader(
+      GeneratorTest.class.getResourceAsStream("/room/discovery.json"));
+    StringWriterFactory factory = new StringWriterFactory();
+
+    Map<String, AnnotationType> annotationMap = Generator.readAnnotationMap(new InputStreamReader(
+      GeneratorTest.class.getResourceAsStream("/room/room.json")));
+    assertThat(annotationMap).hasSize(2);
+
+    Generator.generate(reader, factory, null, EnumSet.of(Generator.MethodType.SYNC), null, annotationMap);
+    assertThat(factory.getString("com/appspot/example/model/HelloGreeting.java"))
+      .isEqualTo(getExpectedString("/room/HelloGreeting.java.model"));
   }
 
   private static String getExpectedString(String path) throws URISyntaxException, IOException {

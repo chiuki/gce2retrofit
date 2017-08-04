@@ -5,7 +5,7 @@ Generates [Retrofit](http://square.github.io/retrofit/) interfaces and related m
 
 ## Usage
 
-### Configuaration files
+### Configuration files
 
 Put the configuration files for each GCE server in a directory under `src/main/gce2retrofit`.
 
@@ -22,6 +22,28 @@ interfaces will be generated.
 `classmap.tsv` (optional)
 
 Map fields with the specified names to the specified types.
+
+`room.json` (optional)
+
+Map classes/fields with specific room annotations and attributes.
+
+Format:
+```
+{
+  "class_name" : {
+    "annotation" : "annotation_name",
+    "attributes" : {
+      "attribute_name" : "value",
+      "attribute_name_2" : "value_2"
+    }
+  },
+  "class_name.field_name" : {
+    "annotation" : "annotation_name"
+  }
+}
+```
+
+See [`gce2retrofit/src/test/resources/room/room.json`](gce2retrofit/src/test/resources/room/room.json) for an example.
 
 Code will be generated in `build/generated/source/gce2retrofit/`
  

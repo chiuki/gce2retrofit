@@ -1,0 +1,29 @@
+{
+  "baseUrl": "https://example.appspot.com/_ah/api/helloworld/v1/",
+  "schemas": {
+    "HelloGreeting": {
+      "id": "HelloGreeting",
+      "type": "object",
+      "properties": {
+        "id" : {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "HelloGreetingCollection": {
+      "id": "HelloGreetingCollection",
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "HelloGreeting"
+          }
+        }
+      }
+    }
+  }
+}
