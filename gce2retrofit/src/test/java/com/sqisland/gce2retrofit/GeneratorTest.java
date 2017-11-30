@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -192,7 +193,7 @@ public final class GeneratorTest {
       GeneratorTest.class.getResourceAsStream("/room/discovery.json"));
     StringWriterFactory factory = new StringWriterFactory();
 
-    Map<String, AnnotationType> annotationMap = Generator.readAnnotationMap(new InputStreamReader(
+    Map<String, List<AnnotationType>> annotationMap = Generator.readAnnotationMap(new InputStreamReader(
       GeneratorTest.class.getResourceAsStream("/room/room.json")));
     assertThat(annotationMap).hasSize(2);
 

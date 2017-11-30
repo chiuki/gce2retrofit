@@ -1,10 +1,10 @@
 package com.sqisland.gce2retrofit
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 
 public class GradleTask extends DefaultTask {
   @InputDirectory
@@ -44,7 +44,7 @@ public class GradleTask extends DefaultTask {
         packageMap = Generator.readStringToStringMap(new FileReader(packageMapFile));
       }
 
-      Map<String, AnnotationType> annotationMap = null;
+      Map<String, List<AnnotationType>> annotationMap = null;
       File annotationMapFile = new File(dir, "room.json");
       if (annotationMapFile.isFile()) {
         annotationMap = Generator.readAnnotationMap(new FileReader(annotationMapFile));

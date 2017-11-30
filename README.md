@@ -30,16 +30,23 @@ Map classes/fields with specific room annotations and attributes.
 Format:
 ```
 {
-  "class_name" : {
-    "annotation" : "annotation_name",
-    "attributes" : {
-      "attribute_name" : "value",
-      "attribute_name_2" : "value_2"
+  "class_name" : [
+    {
+      "annotation1" : "annotation_name1",
+      "attributes" : {
+        "attribute_name" : "value",
+        "attribute_name_2" : "value_2"
+      }
     }
-  },
-  "class_name.field_name" : {
-    "annotation" : "annotation_name"
-  }
+  ],
+  "class_name.field_name" : [
+    {
+      "annotation1" : "annotation_name1"
+    },
+    {
+      "annotation2" : "annotation_name2"
+    }
+  ]
 }
 ```
 
@@ -75,6 +82,9 @@ Apply the plugin in your `build.gradle`:
 Primitives have been replaced by Objects e.g. `Integer` instead of `int`. Please go through your
 code and make sure that you check for `null` before using the value of any `Boolean`, `Integer`,
 `Float` and `Double`.
+
+### Version 1.6.0
+Room.json file has been updated so each type(class/field) takes a list of annotations.
 
 ## Contributing
 
