@@ -46,18 +46,18 @@ public class Generator {
 
   private static final List<String> roomImports = new ArrayList<String>() {
     {
-      add("android.arch.persistence.room.ColumnInfo");
-      add("android.arch.persistence.room.ColumnInfo.Collate");
-      add("android.arch.persistence.room.ColumnInfo.SQLiteTypeAffinity");
-      add("android.arch.persistence.room.Embedded");
-      add("android.arch.persistence.room.Entity");
-      add("android.arch.persistence.room.ForeignKey");
-      add("android.arch.persistence.room.ForeignKey.Action");
-      add("android.arch.persistence.room.Ignore");
-      add("android.arch.persistence.room.Index");
-      add("android.arch.persistence.room.PrimaryKey");
-      add("android.arch.persistence.room.Relation");
-      add("android.support.annotation.NonNull");
+      add("androidx.room.ColumnInfo");
+      add("androidx.room.ColumnInfo.Collate");
+      add("androidx.room.ColumnInfo.SQLiteTypeAffinity");
+      add("androidx.room.Embedded");
+      add("androidx.room.Entity");
+      add("androidx.room.ForeignKey");
+      add("androidx.room.ForeignKey.Action");
+      add("androidx.room.Ignore");
+      add("androidx.room.Index");
+      add("androidx.room.PrimaryKey");
+      add("androidx.room.Relation");
+      add("androidx.annotation.NonNull");
     }
   };
 

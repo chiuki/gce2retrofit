@@ -21,19 +21,19 @@ repositories {
 }
 
 dependencies {
-  compile gradleApi()
-  compile localGroovy()
+  implementation gradleApi()
+  implementation localGroovy()
 
-  compile 'com.android.tools.build:gradle:2.1.0'
+  implementation 'com.android.tools.build:gradle:2.1.0'
 
-  compile 'com.squareup.retrofit:retrofit:1.9.0'
-  compile 'com.google.code.gson:gson:2.4'
-  compile 'com.squareup:javawriter:2.5.1'
-  compile 'org.apache.commons:commons-lang3:3.3.2'
-  compile 'commons-cli:commons-cli:1.2'
+  implementation 'com.squareup.retrofit:retrofit:1.9.0'
+  implementation 'com.google.code.gson:gson:2.4'
+  implementation 'com.squareup:javawriter:2.5.1'
+  implementation 'org.apache.commons:commons-lang3:3.3.2'
+  implementation 'commons-cli:commons-cli:1.2'
 
-  testCompile 'junit:junit:4.12'
-  testCompile 'com.google.truth:truth:0.25'
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'com.google.truth:truth:0.25'
 }
 
 jar {

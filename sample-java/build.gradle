@@ -3,8 +3,8 @@ apply plugin: 'application'
 mainClassName = 'com.sqisland.gce2retrofit.discovery.Discovery'
 
 dependencies {
-  compile 'com.squareup.retrofit2:retrofit:2.0.2'
-  compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+  implementation 'com.squareup.retrofit2:retrofit:2.0.2'
+  implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
 }
 
 buildscript {
