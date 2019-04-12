@@ -69,7 +69,7 @@ Apply the plugin in your `build.gradle`:
         }
       }
       dependencies {
-        classpath 'com.sqisland:gce2retrofit:1.5.0-SNAPSHOT'
+        classpath 'com.sqisland:gce2retrofit:2.0.0-SNAPSHOT'
       }
     }
 
@@ -77,14 +77,17 @@ Apply the plugin in your `build.gradle`:
 
 ## Upgrade guide
 
+### Version 2.0.0
+Migrate your project to [AndroidX](https://developer.android.com/jetpack/androidx/migrate)
+
+### Version 1.6.0
+Room.json file has been updated so each type(class/field) takes a list of annotations.
+
 ### Version 1.1.0
 
 Primitives have been replaced by Objects e.g. `Integer` instead of `int`. Please go through your
 code and make sure that you check for `null` before using the value of any `Boolean`, `Integer`,
 `Float` and `Double`.
-
-### Version 1.6.0
-Room.json file has been updated so each type(class/field) takes a list of annotations.
 
 ## Contributing
 
