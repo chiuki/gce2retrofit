@@ -23,7 +23,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'com.sqisland:gce2retrofit:1.6.0-SNAPSHOT'
+    classpath 'com.sqisland:gce2retrofit:2.0.0-SNAPSHOT'
   }
 }
 
